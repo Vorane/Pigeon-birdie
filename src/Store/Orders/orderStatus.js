@@ -1,0 +1,15 @@
+export const CREATED = "CRT";
+export const AWAITING_FUNDS = "AWF";
+export const INSUFFICIENT_FUNDS_FAILURE = "IFF";
+export const READY_FOR_PROCESSING = "RFP";
+export const RECEIVED_BY_STORE = "RBS";
+export const IN_PROCESSING = "IPR";
+export const AWAITING_SUBSTITUTION = "ASC";
+export const IN_CHECKOUT = "ICH";
+export const CANCELLED_BY_USER = "CUS";
+export const READY_FOR_PICKUP = "RPK";
+export const PICKED = "PKD";
+export const NOT_PICKED = "NPK";
+export const READY_FOR_DELIVERY = "RFD";
+export const DELIVERY_IN_PROGRESS = "DIP";
+export const DELIVERED = "DVD";

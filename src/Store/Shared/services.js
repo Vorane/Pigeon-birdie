@@ -3,3 +3,4 @@
 // export const API_ENDPOINT = "http://207.154.233.22/";
 export const API_ENDPOINT = "http://139.59.215.233/";
 // export const API_ENDPOINT = "http://localhost:8000/";
+// export const API_ENDPOINT = "http://dfef384a.ngrok.io/";
