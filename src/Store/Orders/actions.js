@@ -86,3 +86,54 @@ export const fetchTodaysOrders = () => {
     );
   };
 };
+
+
+export const fetchOrderDetails = (id) =>{
+  return (dispatch,getState)=>{
+    dispatch({
+      type: actionTypes.FETCH_ORDER_DETAILS_REQUESTED,
+      payload:{id}
+    })
+
+
+     //function to fetch from the api
+    const remoteFetchDetails = (orderId, token = null) => {
+      const url = sharedServices.API_ENDPOINT.concat(
+        `api/orders/${orderId}`
+      );
+      let request = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      return fetch(url, request)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          throw error;
+        });
+    };
+
+
+    remoteFetchDetails(id).then(response=>{
+      if(response.status === 200){
+        response.json().then(orderDetails =>{
+          dispatch({
+            type: actionTypes.FETCH_ORDER_DETAILS_SUCCEEDED,
+            payload:{orderDetails: objectToCamelCase(orderDetails)}
+          })
+        })
+      }
+    }).catch(error=>{
+      dispatch({
+        type: actionTypes.FETCH_ORDER_DETAILS_FAILED,
+        payload:{error}
+      })
+    })
+
+
+  }
+}

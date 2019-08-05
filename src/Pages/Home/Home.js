@@ -24,6 +24,7 @@ class Home extends Component {
       refreshing: false
     };
     this._onRefresh = this._onRefresh.bind(this);
+    this._onOrderPress = this._onOrderPress.bind(this);
   }
   componentDidMount() {
     this.props.fetchTodaysOrders();
@@ -33,6 +34,11 @@ class Home extends Component {
     this.setState({ refreshing: true });
     this.props.fetchTodaysOrders();
   };
+
+  _onOrderPress = (order)=>{
+    
+    this.props.navigation.navigate("OrderDetailsPage",{order: order})
+  }
 
   render() {
     let { theme, screenProps, orders, fetchOrdersProcess } = this.props;
@@ -56,7 +62,7 @@ class Home extends Component {
             }
           >
             <SectionHeader title='Today' />
-            <OrderList orders={orders.orders} />
+            <OrderList orders={orders.orders} orderItemPress={this._onOrderPress} />
           </ScrollView>
         </Wrapper>
       </ThemeProvider>

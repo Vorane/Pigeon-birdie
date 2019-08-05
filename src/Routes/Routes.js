@@ -3,16 +3,18 @@ import { createAppContainer, createStackNavigator, createDrawerNavigator} from "
 
 import Drawer from "../Pages/Drawer/Drawer"
 import Home from "../Pages/Home/Home"
+import OrderDetailsPage from "../Pages/Orders/OrderDetail"
 
 const OrdersRoute = createAppContainer(
-    createStackNavigator({Home},{defaultNavigationOptions: {
+    createStackNavigator({Home, OrderDetailsPage, },{defaultNavigationOptions: {
         headerMode: "none"
       },
       headerMode: "none"})
 )
 const HomeRoute = createAppContainer(
     createStackNavigator({
-        Home
+        Home,
+        
     },{ defaultNavigationOptions: {
         headerMode: "none"
       },

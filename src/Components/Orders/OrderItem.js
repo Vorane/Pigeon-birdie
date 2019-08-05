@@ -55,7 +55,7 @@ const OrderStatus = styled.Text`
 
 const OrderItem = ({ order, orderItemPress }) => {
   return (
-    <Wrapper>
+    <Wrapper onPress={()=>{orderItemPress(order)}}>
       <OrderDetailsContainer>
         <OutletImageContainer>
           <OutletImage source={{ uri: order.outlet.image }} />

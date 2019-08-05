@@ -7,8 +7,12 @@ const initialState = {
   _fetchOrdersProcess: { status: processTypes.IDLE },
   orders: {
     currentPage: 0,
-    completed: false
-  }
+    completed: false,
+    order:[]
+  },
+
+  _fetchOrderDetailsProcess:{status: processTypes.IDLE},
+  orderDetails:{}
 };
 
 const storage = CreateSensitiveStorage({
@@ -19,7 +23,7 @@ const storage = CreateSensitiveStorage({
 const ordersPersistConfig = {
   key: "orders",
   storage,
-  blacklist: ["_fetchOrdersProcess", "orders"]
+  blacklist: ["_fetchOrdersProcess","_fetchOrderDetailsProcess", "orders","orderDetails"]
 };
 
 const ordersReducer = (state = initialState, action = {}) => {
@@ -42,12 +46,33 @@ const ordersReducer = (state = initialState, action = {}) => {
 
     case actionTypes.FETCH_ORDERS_FAILED:
       return {
-        ...state._fetchOrdersProcess,
+        ...state,
         _fetchOrdersProcess: {
           status: processTypes.ERROR,
           error: action.payload.error
         }
       };
+
+    case actionTypes.FETCH_ORDER_DETAILS_REQUESTED:
+      return{
+        ...state,
+        _fetchOrderDetailsProcess:{status: processTypes.PROCESSING},
+        orderDetails:{}
+      }
+    
+    case actionTypes.FETCH_ORDER_DETAILS_SUCCEEDED:
+      return{
+        ...state,
+        _fetchOrderDetailsProcess: {status: processTypes.SUCCESS},
+        orderDetails:action.payload.orderDetails
+      }
+
+    case actionTypes.FETCH_ORDER_DETAILS_FAILED:
+      return{
+        ...state,
+        _fetchOrderDetailsProcess:{status: processTypes.ERROR, error: action.payload.error}
+      }
+
     default:
       return state;
   }
