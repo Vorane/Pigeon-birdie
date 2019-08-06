@@ -8,6 +8,8 @@ import { bindActionCreators} from "redux"
 
 //Import store actions and selectors
 import * as processTypes from "../../Store/Shared/processTypes"
+import * as orderStatus from "../../Store/Orders/orderStatus"
+import * as orderStatusDetails from "../../Store/Orders/orderStatus"
 import { getTheme } from "../../Store/Configuration/selectors"
 import { fetchOrderDetails } from "../../Store/Orders/actions"
 import { getFetchOrderDetailsProcess, getOrderDetails  } from "../../Store/Orders/selectors"
@@ -17,6 +19,7 @@ import UnderlineHeader from "../../Components/Header/UnderlineHeader"
 import Header from "../../Components/Header/Header"
 import ProductList from "../../Components/Products/ProductList"
 import OrderSummary from "../../Components/Orders/OrderSummary"
+import ButtonFooter from "../../Components/Footer/ButtonFooter"
 
 //Define Local Styled Components
 const Wrapper = styled.View`
@@ -47,13 +50,36 @@ const Value  = styled.Text`
     font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
     color: ${props => props.theme.PRIMARY_TEXT_COLOR};
     padding-horizontal: 5;
-`  
-
-const ProductListContainer = styled.View`
+    `  
+    
+    const ProductListContainer = styled.View`
     background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
     elevation: 7;
     padding-horizontal: 2.5;
     padding-vertical: 2.5;
+    `
+    
+    const ConfirmationFooter = styled.TouchableOpacity`
+    padding-vertical: 10;
+    background-color: ${props => props.theme.PRIMARY_COLOR};
+    
+    flex-direction: column;
+    justify-content: center;
+    align-items: center
+    `
+    const ConfirmationPrimaryText = styled.Text`
+    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY_SEMI_BOLD};
+    font-size: ${props => props.theme.FONT_SIZE_LARGE};
+    color: ${props => props.theme.SECONDARY_TEXT_COLOR};
+    padding-horizontal: 5;
+
+`
+    const ConfirmationSecondaryText = styled.Text`
+    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY};
+    font-size: ${props => props.theme.FONT_SIZE_SMALL};
+    color: ${props => props.theme.SECONDARY_TEXT_COLOR};
+    padding-horizontal: 5;
+
 `
 
 class OrderDetail extends Component{
@@ -67,6 +93,32 @@ class OrderDetail extends Component{
         let order = this.props.navigation.getParam("order")        
         this.props.fetchOrderDetails(order.id)
     }
+
+    _getFooter(orderDetails){
+        const statusesRequiringConfirmation = [orderStatus.CREATED, orderStatus.READY_FOR_PROCESSING , orderStatus.RECEIVED_BY_STORE]
+
+        if ( statusesRequiringConfirmation.includes( orderDetails.orderStatus )){
+            //prompt the user to confirm the orders
+            return(
+                <ConfirmationFooter>
+                    <ConfirmationPrimaryText>
+                        Confirm order
+                    </ConfirmationPrimaryText>
+                    <ConfirmationSecondaryText>
+                        {orderDetails.orderContactPerson.split(' ')[0] } will be notified that their order is in progress.
+                    </ConfirmationSecondaryText>
+                </ConfirmationFooter>
+            )
+        }
+        else{
+            return (
+
+                <ButtonFooter buttonText="Complete"/>
+            )
+        }
+    }
+
+    
 
     render(){
         let {theme, orderDetails, fetchOrderDetailsProcess} = this.props
@@ -103,6 +155,9 @@ class OrderDetail extends Component{
                         </Section>
 
                     </Content>
+                    {showDetails &&(
+                        this._getFooter(orderDetails)
+                    )}
                 </Wrapper>
             </ThemeProvider>
         )
