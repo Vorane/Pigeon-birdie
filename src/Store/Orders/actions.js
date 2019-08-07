@@ -137,3 +137,62 @@ export const fetchOrderDetails = (id) =>{
 
   }
 }
+
+export const updateOrderStatus = (order, newOrderStatus )=>{
+  return (dispatch, getState)=>{
+    dispatch({
+      type: actionTypes.UPDATE_ORDER_STATUS_REQUESTED,
+      payload: {order, newOrderStatus}
+    })
+
+
+    const remoteUpdateStatus = (orderId, newStatus)=>{
+      const url = sharedServices.API_ENDPOINT.concat(
+        `api/orders/update-order-status/`
+      );
+      let request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          order_status: newStatus
+        })
+      };
+
+      return fetch(url, request)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          throw error;
+        });
+    }
+
+
+    remoteUpdateStatus(order.id, newOrderStatus).then(response=>{
+      if(response.status === 200){
+        dispatch({
+          type: actionTypes.UPDATE_ORDER_STATUS_SUCCEEDED, 
+          payload:{orderDetails: {...order, orderStatus: newOrderStatus}}         
+        })
+      }
+      else{
+        dispatch({
+          type: actionTypes.UPDATE_ORDER_STATUS_FAILED,
+          payload:{error: "unable to update order status. Please try again"}
+        })
+      }
+    }).catch(error=>{
+      dispatch({
+          type: actionTypes.UPDATE_ORDER_STATUS_FAILED,
+          payload:{error: "unable to update order status. Please try again"}
+        })
+    })
+
+  }
+}
+export const resetUpdateOrderStatus = ()=>{
+  return dispatch=>(dispatch({type: actionTypes.UPDATE_ORDER_STATUS_RESET}))
+}
