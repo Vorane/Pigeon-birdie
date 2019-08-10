@@ -89,6 +89,7 @@ class OrderDetail extends Component{
         super(props)
 
         this._getConfirmationFooter = this._getConfirmationFooter.bind(this)
+        this._onProductPress = this._onProductPress.bind(this)
     }
 
     componentDidMount(){
@@ -107,6 +108,10 @@ class OrderDetail extends Component{
             //reset the update order status process
             setTimeout(()=>{ this.props.resetUpdateOrderStatus()}, 3000)
         }
+    }
+
+    _onProductPress(product){
+        this.props.navigation.navigate("ProductDetailPage",{product})
     }
 
     _getFooter(orderDetails){
@@ -208,12 +213,10 @@ class OrderDetail extends Component{
                         )}
                         </Section>
                         <Section>
-
                             <UnderlineHeader title="Products"/>
                             <ProductListContainer>
-                                <ProductList products={orderDetails.orderOrderItem}/>
-                            </ProductListContainer>
-                            
+                                <ProductList products={orderDetails.orderOrderItem} orderPressHandler={this._onProductPress}/>
+                            </ProductListContainer>    
                         </Section>
 
                     </Content>

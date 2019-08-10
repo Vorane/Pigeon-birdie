@@ -6,10 +6,11 @@ import storage from "redux-persist/lib/storage";
 import configurationReducer from "./Configuration/reducers";
 import authReducer from "./Authentication/reducers";
 import ordersReducer from "./Orders/reducers";
+import productsReducer from "./Products/reducers";
 
 const persistConfig = {
   key: "root",
-  blacklist: ["auth", "configuration", "orders"],
+  blacklist: ["auth", "configuration", "orders", "products"],
   storage
 };
 
@@ -18,7 +19,8 @@ const rootReducer = persistReducer(
   combineReducers({
     configuration: configurationReducer,
     auth: authReducer,
-    orders: ordersReducer
+    orders: ordersReducer,
+    products: productsReducer
   })
 );
 
