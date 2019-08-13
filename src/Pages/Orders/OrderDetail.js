@@ -307,42 +307,24 @@ class OrderDetail extends Component{
                             <UnderlineHeader title="Products"/>
                             {showLoading &&(
                                 <Fragment>
-                                    <Loader
-                                        primaryColor='rgba(195, 191, 191, 1)'
-                                        secondaryColor='rgba(218, 215, 215, 1)'
-                                        animationDuration={500}
-                                        loading={true}
-                                        title={false}
-                                        pRows={2}
-                                        pWidth={["100%","20%"]}
-                                        active
-                                        avatar
-                                        />
-                                    <Loader
-                                        primaryColor='rgba(195, 191, 191, 1)'
-                                        secondaryColor='rgba(218, 215, 215, 1)'
-                                        animationDuration={500}
-                                        loading={true}
-                                        title={false}
-                                        pRows={2}
-                                        pWidth={["100%","20%"]}
-                                        
-                                        active
-                                        avatar
-                                        />
-                                    <Loader
-                                        primaryColor='rgba(195, 191, 191, 1)'
-                                        secondaryColor='rgba(218, 215, 215, 1)'
-                                        animationDuration={500}
-                                        loading={true}
-                                        title={false}
-                                        pRows={2}
-                                        pWidth={["100%","20%"]}
-                                        
-                                        active
-                                        avatar
-                                        />
-                                    </Fragment>
+                                    {[1,2,3,4,5].map((index)=>(
+                                        <Field>
+
+                                            <Loader
+                                                key={index}
+                                                primaryColor='rgba(195, 191, 191, 1)'
+                                                secondaryColor='rgba(218, 215, 215, 1)'
+                                                animationDuration={500}
+                                                loading={true}
+                                                title={false}
+                                                pRows={2}
+                                                pWidth={["100%","20%"]}
+                                                active
+                                                avatar/>
+                                        </Field>
+                                    ))}
+                                    
+                                </Fragment>
                             )}
                             <ProductListContainer>
                                 <ProductList products={orderDetails.orderOrderItem} orderPressHandler={this._onProductPress}/>

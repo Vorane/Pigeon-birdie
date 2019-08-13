@@ -33,15 +33,20 @@ const OutletImage = styled.Image`
 const OrderDetailsContainer = styled.View`
   flex-direction: row;
   align-items: flex-start;
-`;
-const OrderContentContainer = styled.View`
+  `;
+  const OrderContentContainer = styled.View`
   padding-horizontal: 10;
-`;
+  `;
 const OrderTitle = styled.Text`
   font-family: ${props => props.theme.SECONDARY_FONT_FAMILY_SEMI_BOLD};
   font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
   color: ${props => props.theme.PRIMARY_TEXT_COLOR};
 `;
+
+const OrderSecondaryDetailsContainer =styled.View`
+  flex-direction: row;
+  justify-content: flex-start;
+`
 const OrderTime = styled.Text`
   font-family: ${props => props.theme.PRIMARY_FONT_FAMILY};
   font-size: ${props => props.theme.FONT_SIZE_SMALL};
@@ -49,7 +54,7 @@ const OrderTime = styled.Text`
 `;
 const OrderStatus = styled.Text`
   font-family: ${props => props.theme.PRIMARY_FONT_FAMILY};
-  font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
+  font-size: ${props => props.theme.FONT_SIZE_SMALL};
   color: ${props => props.theme.PRIMARY_TEXT_COLOR_LIGHT};
 `;
 
@@ -62,10 +67,15 @@ const OrderItem = ({ order, orderItemPress }) => {
         </OutletImageContainer>
         <OrderContentContainer>
           <OrderTitle>{order.orderContactPerson}'s order</OrderTitle>
-          <OrderStatus>
-            {orderStatusDetails[order.orderStatus].title}
-          </OrderStatus>
-          <OrderTime>{moment(order.pickupTime).format("hh:mm a")}</OrderTime>
+          <OrderSecondaryDetailsContainer>
+            <OrderStatus>
+              {orderStatusDetails[order.orderStatus].title}
+            </OrderStatus>
+            <OrderStatus>
+              {` | `}
+            </OrderStatus>
+            <OrderTime>{moment(order.pickupTime).format("hh:mm a")}</OrderTime>
+          </OrderSecondaryDetailsContainer>
         </OrderContentContainer>
       </OrderDetailsContainer>
     </Wrapper>
