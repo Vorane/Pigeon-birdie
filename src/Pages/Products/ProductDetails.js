@@ -103,7 +103,7 @@ class ProductDetail extends Component{
     }
 
     render(){
-        var BContent = <TouchableOpacity onPress={() => this.setState({isModalOpen: false})} style={[styles.btn, styles.btnModal]}><Text>X</Text></TouchableOpacity>;
+        
         let {theme, navigation} = this.props
         let orderItem = this.props.navigation.getParam("product")
         return(
@@ -164,7 +164,7 @@ class ProductDetail extends Component{
                     </Content>
                     
                 </Wrapper>
-                    <ProductsModal isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} backdropContent={BContent}>
+                    <ProductsModal isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} >
                         <UpdateInventoryPrice close={this._closeModal} inventory={orderItem.product.outletInventory} />
                     </ProductsModal>
                 </Fragment>
@@ -173,55 +173,6 @@ class ProductDetail extends Component{
     }
 }
 
-
-const styles = StyleSheet.create({
-
-  wrapper: {
-    paddingTop: 50,
-    flex: 1
-  },
-
-  modal: {
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-
-  modal2: {
-    height: 230,
-    backgroundColor: "#3B5998"
-  },
-
-  modal3: {
-    height: 300,
-    width: 300
-  },
-
-  modal4: {
-    height: 300
-  },
-
-  btn: {
-    margin: 10,
-    backgroundColor: "#3B5998",
-    color: "white",
-    padding: 10
-  },
-
-  btnModal: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: 50,
-    height: 50,
-    backgroundColor: "transparent"
-  },
-
-  text: {
-    color: "black",
-    fontSize: 22
-  }
-
-});
 
 const mapStateToProps = state =>({
     theme: getTheme(state),

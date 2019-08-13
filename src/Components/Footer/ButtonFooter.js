@@ -1,4 +1,5 @@
 import React from "react";
+import { ActivityIndicator } from 'react-native'
 
 import styled from "styled-components";
 import { colorOptions } from "../../Store/Configuration/theme";
@@ -21,12 +22,12 @@ const Footer = styled.View`
 `;
 
 const OrderButton = styled.TouchableOpacity`
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   elevation: 3;
   border-radius: 5;
-  background-color: ${props => props.theme.PRIMARY_COLOR};
+  background-color: ${props => props.color? props.color:  props.theme.PRIMARY_COLOR};
 
   padding-top: 10;
   padding-bottom: 10;
@@ -65,14 +66,19 @@ export default ({
   children,
   buttonText = "Provide Button Text",
   pressHandler,
-  buttonActive = true
+  buttonActive = true,
+  loading=false,
+  color=null
 }) => {
   return (
     <Footer>
       {children ? children : <EmptyView />}
       {buttonActive ? (
-        <OrderButton onPress={pressHandler}>
+        <OrderButton onPress={pressHandler} color={color}>
           <OrderButtonText>{buttonText}</OrderButtonText>
+          {loading &&(
+            <ActivityIndicator size="small" color="white"/>
+          )}
         </OrderButton>
       ) : (
         <DisabledButton onPress={pressHandler} disabled={true}>

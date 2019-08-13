@@ -1,7 +1,9 @@
 import * as actionTypes from "./actionTypes";
 import * as sharedServices from "../Shared/services";
-import { isNull, objectToCamelCase } from "../../lib/utils";
+import { isNull, objectToCamelCase, isUndefined } from "../../lib/utils";
 import moment from "moment";
+import { getOrders } from "./selectors"
+
 
 export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
   return (dispatch, getState) => {
@@ -72,6 +74,21 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
 };
 
 export const fetchTodaysOrders = () => {
+  return (dispatch, getState) => {
+    let startDate = moment().subtract(1, "days").utc();
+
+    var endDate = new moment().add(1, "days").utc();
+
+    dispatch(
+      fetchOrders(
+        startDate.utc().toISOString(),
+        endDate.utc().toISOString(),
+        1
+      )
+    );
+  };
+};
+export const fetchTodaysEarlierOrders = () => {
   return (dispatch, getState) => {
     let startDate = moment().subtract(1, "days");
 
@@ -173,10 +190,20 @@ export const updateOrderStatus = (order, newOrderStatus )=>{
 
     remoteUpdateStatus(order.id, newOrderStatus).then(response=>{
       if(response.status === 200){
+        //update the list of orders to reflect the change
+        let orders = {...getOrders(getState())}
+        let foundOrder  = orders.orders.findIndex(item => item.id ===order.id)
+        if(foundOrder > -1){
+          orders.orders[foundOrder] = {...orders.orders[foundOrder], orderStatus: newOrderStatus}        
+        }
         dispatch({
           type: actionTypes.UPDATE_ORDER_STATUS_SUCCEEDED, 
-          payload:{orderDetails: {...order, orderStatus: newOrderStatus}}         
+          payload:{
+            orderDetails: {...order, orderStatus: newOrderStatus}, 
+            orders
+          }         
         })
+
       }
       else{
         dispatch({

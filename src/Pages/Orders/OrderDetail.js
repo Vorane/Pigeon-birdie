@@ -1,9 +1,10 @@
 import React, {Component, Fragment} from "react"
-import {Text, ActivityIndicator} from "react-native"
+import {Text, View, ActivityIndicator} from "react-native"
 import styled, {ThemeProvider} from "styled-components"
 import {connect} from "react-redux"
 import moment from "moment"
 import { bindActionCreators} from "redux"
+import Loader from "react-native-easy-content-loader";
 
 
 //Import store actions and selectors
@@ -98,16 +99,32 @@ class OrderDetail extends Component{
         this.props.fetchOrderDetails(order.id)
     }
 
+    componentWillUnmount(){
+        this.props.resetUpdateOrderStatus()
+    }
+
 
     componentDidUpdate(prevProps, prevState, snapShot){
-        if(
-            prevProps.updateOrderStatusProcess.status === processTypes.PROCESSING &&
+        if( prevProps.updateOrderStatusProcess.status !== processTypes.SUCCESS &&
             this.props.updateOrderStatusProcess.status === processTypes.SUCCESS
-        )
-        {
-            //reset the update order status process
-            setTimeout(()=>{ this.props.resetUpdateOrderStatus()}, 3000)
+        ) {
+            if(                
+                this.props.orderDetails.orderStatus === orderStatus.READY_FOR_DELIVERY 
+            ){
+                setTimeout(()=>{ 
+                    this.props.resetUpdateOrderStatus()
+                    this.props.navigation.goBack()
+                }, 2000)
+
+            }
+            if(
+                this.props.orderDetails.orderStatus === orderStatus.IN_PROCESSING
+            ){                
+                this.props.resetUpdateOrderStatus()                
+            }
         }
+            
+        
     }
 
     _onProductPress(product){
@@ -125,8 +142,7 @@ class OrderDetail extends Component{
         }
         else{
             return (
-
-                <ButtonFooter buttonText="Complete"/>
+                this._getCompleteFooter()
             )
         }
     }
@@ -178,17 +194,84 @@ class OrderDetail extends Component{
                         </ConfirmationSecondaryText>
                     </ConfirmationFooter>
                 )}
-                    
             </Fragment>
         )
 
+    
     }
+    _getCompleteFooter(){
+        let { updateOrderStatusProcess,  updateOrderStatus, orderDetails} = this.props
+        let showDefault = updateOrderStatusProcess.status === processTypes.IDLE
+        let showLoading = updateOrderStatusProcess.status === processTypes.PROCESSING
+        let showSuccess = updateOrderStatusProcess.status === processTypes.SUCCESS
+        let showError = updateOrderStatusProcess.status === processTypes.ERROR
+
+        return(
+            <Fragment>
+                {showDefault &&(
+                    <ButtonFooter 
+                        pressHandler={()=>{ updateOrderStatus(orderDetails, orderStatus.READY_FOR_DELIVERY)}} 
+                        buttonText={"Complete order"}/>
+                )}
+                {showLoading &&(
+                    <ButtonFooter  
+                        loading={true} 
+                        buttonText={"Completing order"}/>
+                )}
+                {showError &&(
+                    <ButtonFooter      
+                        color={"black"}                   
+                        buttonText={"Error Completing order"}/>
+                )}
+                {showSuccess &&(
+                    <ConfirmationFooter color={"green"} disabled >
+                        <ConfirmationPrimaryText>
+                            Success
+                        </ConfirmationPrimaryText>
+                    </ConfirmationFooter>
+                )}
+            </Fragment>
+        )
+    }
+
+    _getDetailsLoader(){
+        return(
+            <Loader
+                primaryColor='rgba(195, 191, 191, 1)'
+                secondaryColor='rgba(218, 215, 215, 1)'
+                animationDuration={500}
+                loading={true}
+                title={false}
+                pRows={5}
+                pWidth={["30%","30%","100%","100%","100%"]}
+                active
+                >    
+            </Loader>
+        )
+    }
+    _getProductsLoader(){
+        return(
+            <Loader
+                primaryColor='rgba(195, 191, 191, 1)'
+                secondaryColor='rgba(218, 215, 215, 1)'
+                animationDuration={500}
+                loading={true}
+                pRows={5}
+                active
+                >    
+            </Loader>
+        )
+    }
+
+    
+
 
     
     
 
     render(){
         let {theme, orderDetails, fetchOrderDetailsProcess} = this.props
+        let showLoading = fetchOrderDetailsProcess.status === processTypes.PROCESSING
         let showDetails = fetchOrderDetailsProcess.status === processTypes.SUCCESS
         
         return(
@@ -197,23 +280,70 @@ class OrderDetail extends Component{
                     <Header title={`${orderDetails.orderContactPerson}'s order`} canGoBack={true} theme={theme} goBack={this.props.navigation.goBack}/>
                     <Content>
                         <Section>
+                            <UnderlineHeader title="Order Details"/>
+                            {showDetails &&(
+                                <Section>
+                                    <Field>
+                                        {/* <Label>Contact person:</Label> */}
+                                        <Value>{orderDetails.orderContactPerson}</Value>
+                                    </Field>
+                                    <Field>
+                                        {/* <Label>Delivery time:</Label> */}
+                                        <Value>{moment(orderDetails.pickupTime).format("hh:mm a")}</Value>
+                                    </Field>
 
-                        <UnderlineHeader title="Order Details"/>
-                        <Field>
-                            {/* <Label>Contact person:</Label> */}
-                            <Value>{orderDetails.orderContactPerson}</Value>
-                        </Field>
-                        <Field>
-                            {/* <Label>Delivery time:</Label> */}
-                            <Value>{moment(orderDetails.pickupTime).format("hh:mm a")}</Value>
-                        </Field>
-
-                        {showDetails &&(
-                            <OrderSummary orderItems={orderDetails.orderOrderItem} />
-                        )}
+                                    {showDetails &&(
+                                        <OrderSummary orderItems={orderDetails.orderOrderItem} />
+                                    )}
+                                </Section>
+                            )}
+                            {showLoading &&(
+                                <Section>
+                                {this._getDetailsLoader()}
+                                </Section>
+                            )}
                         </Section>
                         <Section>
                             <UnderlineHeader title="Products"/>
+                            {showLoading &&(
+                                <Fragment>
+                                    <Loader
+                                        primaryColor='rgba(195, 191, 191, 1)'
+                                        secondaryColor='rgba(218, 215, 215, 1)'
+                                        animationDuration={500}
+                                        loading={true}
+                                        title={false}
+                                        pRows={2}
+                                        pWidth={["100%","20%"]}
+                                        active
+                                        avatar
+                                        />
+                                    <Loader
+                                        primaryColor='rgba(195, 191, 191, 1)'
+                                        secondaryColor='rgba(218, 215, 215, 1)'
+                                        animationDuration={500}
+                                        loading={true}
+                                        title={false}
+                                        pRows={2}
+                                        pWidth={["100%","20%"]}
+                                        
+                                        active
+                                        avatar
+                                        />
+                                    <Loader
+                                        primaryColor='rgba(195, 191, 191, 1)'
+                                        secondaryColor='rgba(218, 215, 215, 1)'
+                                        animationDuration={500}
+                                        loading={true}
+                                        title={false}
+                                        pRows={2}
+                                        pWidth={["100%","20%"]}
+                                        
+                                        active
+                                        avatar
+                                        />
+                                    </Fragment>
+                            )}
                             <ProductListContainer>
                                 <ProductList products={orderDetails.orderOrderItem} orderPressHandler={this._onProductPress}/>
                             </ProductListContainer>    
@@ -221,7 +351,11 @@ class OrderDetail extends Component{
 
                     </Content>
                     {
-                        this._getFooter(orderDetails)
+                        showDetails &&(
+                            <Fragment>
+                                {this._getFooter(orderDetails)}
+                            </Fragment>
+                        )
                     }
                 </Wrapper>
             </ThemeProvider>

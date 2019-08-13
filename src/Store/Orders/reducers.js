@@ -8,7 +8,7 @@ const initialState = {
   orders: {
     currentPage: 0,
     completed: false,
-    order:[]
+    orders:[]
   },
 
   _fetchOrderDetailsProcess:{status: processTypes.IDLE},
@@ -85,7 +85,8 @@ const ordersReducer = (state = initialState, action = {}) => {
       return{
         ...state,
         _updateOrderStatusProcess:{status: processTypes.SUCCESS},
-        orderDetails:action.payload.orderDetails
+        orderDetails:action.payload.orderDetails,
+        orders: action.payload.orders
       }
 
     case actionTypes.UPDATE_ORDER_STATUS_FAILED:

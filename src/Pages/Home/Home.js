@@ -20,9 +20,7 @@ const Wrapper = styled.View``;
 class Home extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      refreshing: false
-    };
+    
     this._onRefresh = this._onRefresh.bind(this);
     this._onOrderPress = this._onOrderPress.bind(this);
   }
@@ -31,7 +29,7 @@ class Home extends Component {
   }
 
   _onRefresh = () => {
-    this.setState({ refreshing: true });
+    
     this.props.fetchTodaysOrders();
   };
 

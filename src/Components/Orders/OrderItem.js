@@ -44,7 +44,7 @@ const OrderTitle = styled.Text`
 `;
 const OrderTime = styled.Text`
   font-family: ${props => props.theme.PRIMARY_FONT_FAMILY};
-  font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
+  font-size: ${props => props.theme.FONT_SIZE_SMALL};
   color: ${props => props.theme.PRIMARY_TEXT_COLOR_LIGHT};
 `;
 const OrderStatus = styled.Text`
