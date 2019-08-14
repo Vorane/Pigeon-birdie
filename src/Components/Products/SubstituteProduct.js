@@ -6,7 +6,9 @@ import FeatherIcon from "react-native-vector-icons/Feather"
 
 //import local actions and selectors
 import * as processTypes from "../../Store/Shared/processTypes"
- import {colorOptions} from "../../Store/Configuration/theme"
+import {colorOptions} from "../../Store/Configuration/theme"
+import {substituteOrderItems , resetSubstituteOrderItem} from "../../Store/Orders/actions"
+import { getSubstituteOrderItemProcess  } from "../../Store/Orders/selectors"
 
 ///import local components
 import SearchOutletProduct from "./SearchOutletProduct"
@@ -142,6 +144,20 @@ class SubstituteProduct extends Component{
         this._onProductPress = this._onProductPress.bind(this)
         this._reduceQuantity = this._reduceQuantity.bind(this)
         this._addQuantity = this._addQuantity.bind(this)
+        this._onPressSwap = this._onPressSwap.bind(this)
+    }
+
+    componentDidUpdate(prevProps, prevState, snapShot){
+        if(
+            prevProps.subStituteOrderItemProcess.status !== processTypes.SUCCESS &&
+            this.props.subStituteOrderItemProcess.status === processTypes.SUCCESS
+        ){
+            //close
+            setTimeout(()=>{
+                this.props.resetSubstituteOrderItem()
+                this.props.close()
+            }, 1000)
+        }
     }
 
     _onProductPress(product){
@@ -176,9 +192,23 @@ class SubstituteProduct extends Component{
         }
     }
 
+    _onPressSwap(){
+        let newOrderItem  = {
+            product: this.state.product,
+            quantity: this.state.quantity,
+            isAdded: true,
+        }
+        this.props.substituteOrderItems(this.props.order, this.props.orderItem, newOrderItem )
+    }
+
 
     render(){
-        let { productSelected, product, quantity} = this.state
+        let { productSelected, product, quantity, } = this.state
+        let {subStituteOrderItemProcess} = this.props
+        let showIdle = subStituteOrderItemProcess.status === processTypes.IDLE
+        let showLoading = subStituteOrderItemProcess.status === processTypes.PROCESSING
+        let showSuccess = subStituteOrderItemProcess.status === processTypes.SUCCESS
+        let showError = subStituteOrderItemProcess.status === processTypes.ERROR
         return(
             <Wrapper>
                 <SearchOutletContainer>
@@ -188,70 +218,89 @@ class SubstituteProduct extends Component{
                     <SearchOutletProduct {...this.props} onProductPress={this._onProductPress}/>
                 </SearchOutletContainer>
                 {productSelected &&(
+                    <Fragment>
+                        {showIdle ?(
+                            <ButtonFooter buttonText={"Swap"} pressHandler={this._onPressSwap}>
+                                <ProductContainer>
+                                    <ProductImageContainer>
+                                        <ProductImage
+                                            resizeMode={"contain"}  
+                                            source={
+                                                product.thumbnail
+                                                    ? { uri: product.thumbnail }
+                                                    : require("../../../assets/images/placeholder.png")}  
+                                            />
+                                    </ProductImageContainer>
+                                    <ProductDetailsSection>
+                                        <ProductName numberOfLines={1} ellipsizeMode='tail'>{product.displayName}</ProductName>
+                                        <ProductCostSection>
+                                            <QuantitySection>
+                                                {quantity === 1 ? (
+                                                    <ButtonContainer
+                                                    color={colorOptions.gray.PRIMARY_COLOR_FAINT}
+                                                    borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
+                                                    onPress={this._reduceQuantity}
+                                                    >
+                                                    <FeatherIcon
+                                                        name='trash-2'
+                                                        size={15}
+                                                        color={colorOptions.gray.PRIMARY_COLOR}
+                                                    />
+                                                    </ButtonContainer>
+                                                ) : (
+                                                    <ButtonContainer
+                                                    color={colorOptions.gray.PRIMARY_COLOR_FAINT}
+                                                    borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
+                                                    onPress={this._reduceQuantity}
+                                                    >
+                                                    <FeatherIcon
+                                                        name='minus'
+                                                        size={15}
+                                                        color={colorOptions.gray.PRIMARY_COLOR}
+                                                    />
+                                                    </ButtonContainer>
+                                                )}
+                                                <QuantityText>{quantity}</QuantityText>
+                                                <ButtonContainer
+                                                    color={colorOptions.gray.PRIMARY_COLOR_FAINT}
+                                                    borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
+                                                    onPress={this._addQuantity}
+                                                >
+                                                    <FeatherIcon
+                                                    name='plus'
+                                                    size={15}
+                                                    color={colorOptions.green.PRIMARY_COLOR}
+                                                    />
+                                                </ButtonContainer>
+                                            </QuantitySection>
+                                        
+                                            <ProductTotalCost>
+                                                {quantity * product.price}
+                                            </ProductTotalCost>
+                                        
+                                        </ProductCostSection>
+                                    </ProductDetailsSection>
+                                </ProductContainer>
 
-                    <ButtonFooter buttonText={"Swap"}>
-                        <ProductContainer>
-                            <ProductImageContainer>
-                                <ProductImage
-                                    resizeMode={"contain"}  
-                                    source={
-                                        product.thumbnail
-                                            ? { uri: product.thumbnail }
-                                            : require("../../../assets/images/placeholder.png")}  
-                                    />
-                            </ProductImageContainer>
-                            <ProductDetailsSection>
-                                <ProductName numberOfLines={1} ellipsizeMode='tail'>{product.displayName}</ProductName>
-                                <ProductCostSection>
-                                    <QuantitySection>
-                                        {quantity === 1 ? (
-                                            <ButtonContainer
-                                            color={colorOptions.gray.PRIMARY_COLOR_FAINT}
-                                            borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
-                                            onPress={this._reduceQuantity}
-                                            >
-                                            <FeatherIcon
-                                                name='trash-2'
-                                                size={15}
-                                                color={colorOptions.gray.PRIMARY_COLOR}
-                                            />
-                                            </ButtonContainer>
-                                        ) : (
-                                            <ButtonContainer
-                                            color={colorOptions.gray.PRIMARY_COLOR_FAINT}
-                                            borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
-                                            onPress={this._reduceQuantity}
-                                            >
-                                            <FeatherIcon
-                                                name='minus'
-                                                size={15}
-                                                color={colorOptions.gray.PRIMARY_COLOR}
-                                            />
-                                            </ButtonContainer>
+                            </ButtonFooter>
+                        ):(
+                            <Fragment>
+                                {showLoading ?(
+                                    <ButtonFooter buttonText={"Swaping"} loading />
+                                    ):(
+                                        <Fragment>
+                                        {showSuccess ?(
+                                            <ButtonFooter buttonText={"Sucess"}  color={"green"}/>
+                                            ):(                                            
+                                            // Show error
+                                            <ButtonFooter buttonText={"Swaping"}  color={"black"}/>
                                         )}
-                                        <QuantityText>{quantity}</QuantityText>
-                                        <ButtonContainer
-                                            color={colorOptions.gray.PRIMARY_COLOR_FAINT}
-                                            borderColor={colorOptions.gray.PRIMARY_COLOR_LIGHT}
-                                            onPress={this._addQuantity}
-                                        >
-                                            <FeatherIcon
-                                            name='plus'
-                                            size={15}
-                                            color={colorOptions.green.PRIMARY_COLOR}
-                                            />
-                                        </ButtonContainer>
-                                    </QuantitySection>
-                                
-                                    <ProductTotalCost>
-                                        {quantity * product.price}
-                                    </ProductTotalCost>
-                                
-                                </ProductCostSection>
-                            </ProductDetailsSection>
-                        </ProductContainer>
-
-                    </ButtonFooter>
+                                    </Fragment>
+                                )}
+                            </Fragment>
+                        )}
+                    </Fragment>
+                    
                 )}
             </Wrapper>
 
@@ -260,6 +309,11 @@ class SubstituteProduct extends Component{
 }
 
 
-const mapStateToProps = (state) =>({})
-const mapDispatchToProps = (dispatch) =>({})
+const mapStateToProps = (state) =>({
+    subStituteOrderItemProcess: getSubstituteOrderItemProcess(state)
+})
+const mapDispatchToProps = (dispatch) =>({
+    substituteOrderItems : bindActionCreators(substituteOrderItems, dispatch),
+    resetSubstituteOrderItem : bindActionCreators(resetSubstituteOrderItem, dispatch)
+})
 export default connect (mapStateToProps, mapDispatchToProps)(SubstituteProduct)

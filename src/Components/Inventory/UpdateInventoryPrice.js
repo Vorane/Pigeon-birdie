@@ -87,7 +87,7 @@ class UpdateInventoryPriceModal extends Component{
             //reset the process
             setTimeout(()=>{
                 this.props._resetUpdateInventoryPrice()
-            }, 3000)
+            }, 1500)
         }
         if(
             (prevProps.updateInventoryPriceProcess.status !== processTypes.SUCCESS ) && 
@@ -96,7 +96,7 @@ class UpdateInventoryPriceModal extends Component{
             setTimeout(()=>{
                 this.props.close()
                 this.props._resetUpdateInventoryPrice()
-            }, 3000)
+            }, 1500)
         }
     }
 

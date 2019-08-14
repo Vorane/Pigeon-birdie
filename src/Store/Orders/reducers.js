@@ -15,6 +15,8 @@ const initialState = {
   orderDetails:{},
   
   _updateOrderStatusProcess: {status: processTypes.IDLE},
+  _addOrderItemProcess: { status: processTypes.IDLE },
+  _removeOrderItemProcess: { status: processTypes.IDLE },
 };
 
 const storage = CreateSensitiveStorage({
@@ -25,7 +27,7 @@ const storage = CreateSensitiveStorage({
 const ordersPersistConfig = {
   key: "orders",
   storage,
-  blacklist: ["_fetchOrdersProcess","_fetchOrderDetailsProcess", "orders","orderDetails","_updateOrderStatusProcess"]
+  blacklist: ["_fetchOrdersProcess","_fetchOrderDetailsProcess", "orders","orderDetails","_updateOrderStatusProcess", "_addOrderItemProcess", "_removeOrderItemProcess"]
 };
 
 const ordersReducer = (state = initialState, action = {}) => {
@@ -100,6 +102,59 @@ const ordersReducer = (state = initialState, action = {}) => {
         ...state,
         _updateOrderStatusProcess:{status: processTypes.IDLE}
       }
+
+    //Add Order Item
+    case  actionTypes.ADD_ORDER_ITEM_REQUESTED:
+      return{
+          ...state,
+          _addOrderItemProcess: { status: processTypes.PROCESSING },
+          
+      }
+        
+    case actionTypes.ADD_ORDER_ITEM_SUCCEEDED:
+        return{
+            ...state,
+            _addOrderItemProcess: { status: processTypes.SUCCESS},            
+        }
+        
+    case actionTypes.ADD_ORDER_ITEM_FAILED:
+        return{
+            ...state,
+            _addOrderItemProcess: { status: processTypes.ERROR, error: action.payload.error},
+        }
+    
+    case actionTypes.ADD_ORDER_ITEM_RESET:{
+        return{
+            ...state,
+            _addOrderItemProcess: {status: processTypes.IDLE}
+        }
+    }
+    //Remove Order Item
+    case  actionTypes.REMOVE_ORDER_ITEM_REQUESTED:
+      return{
+          ...state,
+          _removeOrderItemProcess: { status: processTypes.PROCESSING },
+          
+      }
+        
+    case actionTypes.REMOVE_ORDER_ITEM_SUCCEEDED:
+        return{
+            ...state,
+            _removeOrderItemProcess: { status: processTypes.SUCCESS},            
+        }
+        
+    case actionTypes.REMOVE_ORDER_ITEM_FAILED:
+        return{
+            ...state,
+            _removeOrderItemProcess: { status: processTypes.ERROR, error: action.payload.error},
+        }
+    
+    case actionTypes.REMOVE_ORDER_ITEM_RESET:{
+        return{
+            ...state,
+            _removeOrderItemProcess: {status: processTypes.IDLE}
+        }
+    }
 
 
     default:

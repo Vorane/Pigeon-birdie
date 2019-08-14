@@ -164,6 +164,10 @@ export const fetchOrderDetails = (id) =>{
   }
 }
 
+
+
+//#region Update an order
+
 export const updateOrderStatus = (order, newOrderStatus )=>{
   return (dispatch, getState)=>{
     dispatch({
@@ -232,3 +236,158 @@ export const updateOrderStatus = (order, newOrderStatus )=>{
 export const resetUpdateOrderStatus = ()=>{
   return dispatch=>(dispatch({type: actionTypes.UPDATE_ORDER_STATUS_RESET}))
 }
+
+export const addOrderItem = (order, newOrderItem) =>{
+  return (dispatch,getState) =>{
+    dispatch({
+      type: actionTypes.ADD_ORDER_ITEM_REQUESTED,
+      payload: {order, newOrderItem}
+    })
+
+    const remoteAddOrderItem = (orderId, quantity, isAdded, productId) =>{
+      const url = sharedServices.API_ENDPOINT.concat(
+        `api/orders/add-item/`
+      );
+      let request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          order_id: orderId,
+          quantity: quantity,
+          is_added: isAdded,
+          product_id: productId
+        })
+      };
+
+      return fetch(url, request)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          throw error;
+        });
+    }
+
+
+    return remoteAddOrderItem(order.id , newOrderItem.quantity, newOrderItem.isAdded, newOrderItem.product.id)
+      .then(response=>{
+        if(response.status === 201){
+          //TODO update local order details
+          dispatch({
+            type: actionTypes.ADD_ORDER_ITEM_SUCCEEDED
+          })
+        }else{
+          dispatch({
+            type: actionTypes.ADD_ORDER_ITEM_FAILED,
+            payload: {error: "unable to add the product to the order"}
+          })
+          
+        }
+      })
+      .catch(error =>{
+          dispatch({
+            type: actionTypes.ADD_ORDER_ITEM_FAILED,
+            payload: {error}
+          })
+      })
+
+  }
+}
+
+export const resetAddOrderItem = ()=>{
+  return(dispatch)=>{
+    dispatch({
+      type: actionTypes.ADD_ORDER_ITEM_RESET
+    })
+  }
+}
+
+export const removeOrderItem = (order, orderItem) =>{
+  return (dispatch,getState) =>{
+    dispatch({
+      type: actionTypes.REMOVE_ORDER_ITEM_REQUESTED,
+      payload: {order, orderItem}
+    })
+
+    const remoteAddOrderItem = (orderItemId) =>{
+      const url = sharedServices.API_ENDPOINT.concat(
+        `api/orders/order-item/${orderItemId}/remove/`
+      );
+      let request = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },       
+      };
+
+      return fetch(url, request)
+        .then(response => {
+          return response;
+        })
+        .catch(error => {
+          throw error;
+        });
+    }
+
+
+    return remoteAddOrderItem(orderItem.id)
+      .then(response=>{
+        if(response.status === 201){
+          //TODO update local order details
+          dispatch({
+            type: actionTypes.REMOVE_ORDER_ITEM_SUCCEEDED
+          })
+        }else{
+          dispatch({
+            type: actionTypes.REMOVE_ORDER_ITEM_FAILED,
+            payload: {error: "unable to add the product to the order"}
+          })
+          
+        }
+      })
+      .catch(error =>{
+          dispatch({
+            type: actionTypes.REMOVE_ORDER_ITEM_FAILED,
+            payload: {error}
+          })
+      })
+
+  }
+}
+
+export const resetRemoveOrderItem = ()=>{
+  return(dispatch)=>{
+    dispatch({
+      type: actionTypes.REMOVE_ORDER_ITEM_RESET
+    })
+  }
+}
+
+export const substituteOrderItems = (order, oldOrderItem, newOrderItem) =>{
+  return(dispatch) =>{
+    dispatch({
+      type: actionTypes.SUBSTITUTE_ORDER_ITEM_REQUESTED,
+      payload:{ order, oldOrderItem , newOrderItem}
+    })
+
+    dispatch(addOrderItem(order, newOrderItem)).then(result =>{
+      dispatch(removeOrderItem(order,oldOrderItem))
+    })
+  }
+}
+export const resetSubstituteOrderItem = ()=>{
+  return(dispatch)=>{
+    dispatch({
+      type: actionTypes.SUBSTITUTE_ORDER_ITEM_RESET
+    })
+
+    dispatch(resetAddOrderItem())
+    dispatch(resetRemoveOrderItem())
+  }
+}
+
+
+
+//#endregion
