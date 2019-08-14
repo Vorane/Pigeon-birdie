@@ -5,6 +5,11 @@ import storage from "redux-persist/lib/storage"
 
 const initialState = {
   _updateInventoryPriceProcess: { status: processTypes.IDLE },
+
+
+  //process indicator when searching for a product
+  _searchOutletProductsProcess: { status: processTypes.IDLE },
+  outletProductsSearchResults: [],
   
 }
 
@@ -40,6 +45,35 @@ const productsReducer = (state= initialState, action= {}) =>{
             return{
                 ...state,
                 _updateInventoryPriceProcess: {status: processTypes.IDLE}
+            }
+        }
+
+
+        //Search products
+         case  actionTypes.SEARCH_OUTLET_PRODUCTS_REQUESTED:
+            return{
+                ...state,
+                _searchOutletProductsProcess: { status: processTypes.PROCESSING },
+                
+            }
+            
+        case actionTypes.SEARCH_OUTLET_PRODUCTS_SUCCEEDED:
+            return{
+                ...state,
+                _searchOutletProductsProcess: { status: processTypes.SUCCESS},
+                outletProductsSearchResults: action.payload.results
+            }
+            
+        case actionTypes.SEARCH_OUTLET_PRODUCTS_FAILED:
+            return{
+                ...state,
+                _searchOutletProductsProcess: { status: processTypes.ERROR, error: action.payload.error},
+            }
+        
+        case actionTypes.SEARCH_OUTLET_PRODUCTS_RESET:{
+            return{
+                ...state,
+                _searchOutletProductsProcess: {status: processTypes.IDLE}
             }
         }
 

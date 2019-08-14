@@ -75,9 +75,18 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
 
 export const fetchTodaysOrders = () => {
   return (dispatch, getState) => {
-    let startDate = moment().subtract(1, "days").utc();
-
-    var endDate = new moment().add(1, "days").utc();
+    let startDate = moment()
+                      .set('hour', 0)
+                      .set('minute', 0)
+                      .set('second', 0)
+                      .utc();
+                      
+    var endDate = moment()
+                    .add(1, "days")
+                    .set('hour', 0)
+                    .set('minute', 0)
+                    .set('second', 0)
+                    .utc();
 
     dispatch(
       fetchOrders(

@@ -26,7 +26,7 @@ const UpdateInventoryPriceHeaderContainer = styled.View`
     
     const UpdateInventoryPriceHeader = styled.Text`
     color: ${props => props.theme.PRIMARY_TEXT_COLOR};
-    font-family: ${props => props.theme.SECONDARY_FONT_FAMILY_SEMI_BOLD};
+    font-family: ${props => props.theme.SECONDARY_FONT_FAMILY_BOLD};
     font-size: ${props => props.theme.FONT_SIZE_LARGE}    
     `
     

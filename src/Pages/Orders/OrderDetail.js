@@ -128,7 +128,7 @@ class OrderDetail extends Component{
     }
 
     _onProductPress(product){
-        this.props.navigation.navigate("ProductDetailPage",{product})
+        this.props.navigation.navigate("ProductDetailPage",{product, order: this.props.navigation.getParam("order")})
     }
 
     _getFooter(orderDetails){

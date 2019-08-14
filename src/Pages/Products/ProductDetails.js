@@ -17,6 +17,7 @@ import { getUpdateInventoryPriceProcess} from "../../Store/Products/selectors"
 import Header from "../../Components/Header/Header"
 import UnderlineHeader from "../../Components/Header/UnderlineHeader"
 import UpdateInventoryPrice from "../../Components/Inventory/UpdateInventoryPrice"
+import SubStituteProduct from "../../Components/Products/SubstituteProduct"
 
 //Define local styled components
 const Wrapper = styled.View`
@@ -52,15 +53,15 @@ const OptionsContainer = styled.View`
 
 `
 const OptionSection = styled.View`
-    padding-top: 0;
+    padding-vertical: 5;
+    border-bottom-width: 0.4;
+    border-bottom-color: #b0b0b0;
 `
 const OptionField = styled.TouchableOpacity`
     flex-direction: row;
     justify-content: flex-start;
     align-items: center
     padding-vertical: 10;
-    border-bottom-width: 0.4;
-    border-bottom-color: #f0f0f0;
 `
 const OptionLabel = styled.Text`
     color: ${props => props.theme.PRIMARY_TEXT_COLOR};
@@ -73,6 +74,11 @@ const OptionLabel = styled.Text`
     background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
     max-height: 45%;
     `
+
+const OutletSearchModal = styled(Modal)`
+    background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
+    height: 90%;
+    `
     
 
 
@@ -82,11 +88,29 @@ class ProductDetail extends Component{
         super(props)        
 
         this.state= {
-            isModalOpen: false
+            isModalOpen: false,
+            isProductSearchModalOpen: false
         }
-
+        
         this._closeModal  = this._closeModal.bind(this);
         this._openModal  = this._openModal.bind(this);
+        this._closeProductSearchModal = this._closeProductSearchModal.bind(this);
+        this._openProductSearchModal = this._openProductSearchModal.bind(this);
+    }
+    
+
+
+    _openProductSearchModal(){
+        this.setState({
+            ...this.state,
+            isProductSearchModalOpen: true
+        })
+    }
+    _closeProductSearchModal(){
+        this.setState({
+            ...this.state,
+            isProductSearchModalOpen: false
+        })
     }
 
     _closeModal(){
@@ -106,6 +130,7 @@ class ProductDetail extends Component{
         
         let {theme, navigation} = this.props
         let orderItem = this.props.navigation.getParam("product")
+        let order = this.props.navigation.getParam("order")
         return(
             <ThemeProvider theme={theme}>
                 <Fragment>
@@ -143,13 +168,17 @@ class ProductDetail extends Component{
                                     </OptionField>
                                 </OptionSection>
                                 <OptionSection>
+                                    <OptionField onPress={this._openProductSearchModal }>
+                                        <FeatherIcon name="download" size={15} color={"#3d3d3d"} />
+                                        <OptionLabel>Add Products</OptionLabel>
+                                    </OptionField>
+                                    <OptionField onPress={this._openProductSearchModal }>
+                                        <FeatherIcon name="shuffle" size={15} color={"#3d3d3d"}/>
+                                        <OptionLabel>Swap products</OptionLabel>
+                                    </OptionField>
                                     <OptionField>
                                         <FeatherIcon name="trash" size={15} color={"#3d3d3d"}/>
                                         <OptionLabel>Remove from order</OptionLabel>
-                                    </OptionField>
-                                    <OptionField>
-                                        <FeatherIcon name="shuffle" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Swap products</OptionLabel>
                                     </OptionField>
                                 </OptionSection>
                                 <OptionSection>                
@@ -167,6 +196,9 @@ class ProductDetail extends Component{
                     <ProductsModal isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} >
                         <UpdateInventoryPrice close={this._closeModal} inventory={orderItem.product.outletInventory} />
                     </ProductsModal>
+                    <OutletSearchModal isOpen={this.state.isProductSearchModalOpen} onClosed={this._closeProductSearchModal}  position={"bottom"} >
+                        <SubStituteProduct close={this._closeProductSearchModal} order={order} orderItem={orderItem} />
+                    </OutletSearchModal>
                 </Fragment>
             </ThemeProvider>
         )    
