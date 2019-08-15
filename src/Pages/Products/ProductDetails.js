@@ -10,6 +10,7 @@ import Modal from 'react-native-modalbox';
 
 //import store actions and selectos
 import { getTheme } from "../../Store/Configuration/selectors"
+import { fetchOrderDetails} from "../../Store/Orders/actions"
 import { updateInventoryPrice} from "../../Store/Products/actions"
 import { getUpdateInventoryPriceProcess} from "../../Store/Products/selectors"
 
@@ -89,28 +90,35 @@ class ProductDetail extends Component{
 
         this.state= {
             isModalOpen: false,
-            isProductSearchModalOpen: false
+            isSubstituteProductModalOpen: false
         }
         
         this._closeModal  = this._closeModal.bind(this);
         this._openModal  = this._openModal.bind(this);
-        this._closeProductSearchModal = this._closeProductSearchModal.bind(this);
-        this._openProductSearchModal = this._openProductSearchModal.bind(this);
+        this._closeSubStituteProductModal = this._closeSubStituteProductModal.bind(this);
+        this._openSubstituteProductModal = this._openSubstituteProductModal.bind(this);
+        this._onSubStituteProductModalComplete = this._onSubStituteProductModalComplete.bind(this)
     }
     
 
 
-    _openProductSearchModal(){
+    _openSubstituteProductModal(){
         this.setState({
             ...this.state,
-            isProductSearchModalOpen: true
+            isSubstituteProductModalOpen: true
         })
     }
-    _closeProductSearchModal(){
+    _closeSubStituteProductModal(){
         this.setState({
             ...this.state,
-            isProductSearchModalOpen: false
+            isSubstituteProductModalOpen: false
         })
+    }
+    _onSubStituteProductModalComplete(){
+        //fetch order details
+        let order = this.props.navigation.getParam("order")        
+        this.props.fetchOrderDetails(order.id)
+        this.props.navigation.goBack()
     }
 
     _closeModal(){
@@ -168,11 +176,8 @@ class ProductDetail extends Component{
                                     </OptionField>
                                 </OptionSection>
                                 <OptionSection>
-                                    <OptionField onPress={this._openProductSearchModal }>
-                                        <FeatherIcon name="download" size={15} color={"#3d3d3d"} />
-                                        <OptionLabel>Add Products</OptionLabel>
-                                    </OptionField>
-                                    <OptionField onPress={this._openProductSearchModal }>
+                                    
+                                    <OptionField onPress={this._openSubstituteProductModal }>
                                         <FeatherIcon name="shuffle" size={15} color={"#3d3d3d"}/>
                                         <OptionLabel>Swap products</OptionLabel>
                                     </OptionField>
@@ -189,15 +194,14 @@ class ProductDetail extends Component{
                                 </OptionSection>
                             </OptionsContainer>                                            
                         </Fragment>
-                            {/* <ProductName>{JSON.stringify(product)}</ProductName> */}
                     </Content>
                     
                 </Wrapper>
-                    <ProductsModal isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} >
+                    <ProductsModal backButtonClose={true} isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} >
                         <UpdateInventoryPrice close={this._closeModal} inventory={orderItem.product.outletInventory} />
                     </ProductsModal>
-                    <OutletSearchModal isOpen={this.state.isProductSearchModalOpen} onClosed={this._closeProductSearchModal}  position={"bottom"} >
-                        <SubStituteProduct close={this._closeProductSearchModal} order={order} orderItem={orderItem} />
+                    <OutletSearchModal backButtonClose={true} isOpen={this.state.isSubstituteProductModalOpen} onClosed={this._closeSubStituteProductModal}  position={"bottom"} >
+                        <SubStituteProduct close={this._closeSubStituteProductModal} order={order} orderItem={orderItem} complete={this._onSubStituteProductModalComplete} />
                     </OutletSearchModal>
                 </Fragment>
             </ThemeProvider>
@@ -212,7 +216,8 @@ const mapStateToProps = state =>({
 })
 
 const mapDispatchToProps = dispatch =>({
-    updateInventoryPrice : bindActionCreators(updateInventoryPrice , dispatch)
+    updateInventoryPrice : bindActionCreators(updateInventoryPrice , dispatch),
+    fetchOrderDetails : bindActionCreators(fetchOrderDetails , dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProductDetail)

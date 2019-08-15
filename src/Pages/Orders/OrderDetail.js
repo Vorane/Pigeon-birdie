@@ -1,5 +1,5 @@
 import React, {Component, Fragment} from "react"
-import {Text, View, ActivityIndicator} from "react-native"
+import { RefreshControl, ActivityIndicator} from "react-native"
 import styled, {ThemeProvider} from "styled-components"
 import {connect} from "react-redux"
 import moment from "moment"
@@ -91,6 +91,7 @@ class OrderDetail extends Component{
 
         this._getConfirmationFooter = this._getConfirmationFooter.bind(this)
         this._onProductPress = this._onProductPress.bind(this)
+        this._onRefresh = this._onRefresh.bind(this)
     }
 
     componentDidMount(){
@@ -127,9 +128,17 @@ class OrderDetail extends Component{
         
     }
 
+    _onRefresh = () => {
+        let order = this.props.navigation.getParam("order")        
+        this.props.fetchOrderDetails(order.id)
+    };
+
     _onProductPress(product){
         this.props.navigation.navigate("ProductDetailPage",{product, order: this.props.navigation.getParam("order")})
     }
+
+
+
 
     _getFooter(orderDetails){
         const statusesRequiringConfirmation = [orderStatus.CREATED, orderStatus.READY_FOR_PROCESSING , orderStatus.RECEIVED_BY_STORE]
@@ -146,7 +155,6 @@ class OrderDetail extends Component{
             )
         }
     }
-
     _getConfirmationFooter(){
         let { updateOrderStatusProcess, orderDetails, updateOrderStatus} = this.props
         let showDefault = updateOrderStatusProcess.status === processTypes.IDLE
@@ -278,7 +286,14 @@ class OrderDetail extends Component{
             <ThemeProvider theme={theme} >
                 <Wrapper>
                     <Header title={`${orderDetails.orderContactPerson}'s order`} canGoBack={true} theme={theme} goBack={this.props.navigation.goBack}/>
-                    <Content>
+                    <Content
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={showLoading}
+                                onRefresh={this._onRefresh}
+                            />
+                        }
+                    >
                         <Section>
                             <UnderlineHeader title="Order Details"/>
                             {showDetails &&(

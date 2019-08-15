@@ -1,11 +1,22 @@
 import * as processTypes from "../Shared/processTypes"
+import { isEmpty} from "../../lib/utils"
 
 
 export const getOrders = ({ orders }) => orders.orders;
 export const getFetchOrdersProcess = ({ orders }) => orders._fetchOrdersProcess;
 
 export const getFetchOrderDetailsProcess = ({orders}) => orders._fetchOrderDetailsProcess;
-export const getOrderDetails =({orders}) => orders.orderDetails
+export const getOrderDetails =({orders}) => {
+    if(isEmpty(orders.orderDetails)){
+        return orders.orderDetails
+    }{
+        let validOrderItems = orders.orderDetails.orderOrderItem.filter((orderItem, index)=>(orderItem.isRemoved === false))
+        return {
+            ...orders.orderDetails,
+            orderOrderItem: validOrderItems
+        }
+    }
+}
 
 export const getUpdateOrderStatusProcess = ({orders}) => orders._updateOrderStatusProcess
 

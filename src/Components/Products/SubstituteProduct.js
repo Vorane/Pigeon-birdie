@@ -156,6 +156,7 @@ class SubstituteProduct extends Component{
             setTimeout(()=>{
                 this.props.resetSubstituteOrderItem()
                 this.props.close()
+                this.props.complete()
             }, 1000)
         }
     }
