@@ -19,6 +19,7 @@ import Header from "../../Components/Header/Header"
 import UnderlineHeader from "../../Components/Header/UnderlineHeader"
 import UpdateInventoryPrice from "../../Components/Inventory/UpdateInventoryPrice"
 import SubStituteProduct from "../../Components/Products/SubstituteProduct"
+import RemoveProduct from "../../Components/Products/RemoveProduct"
 
 //Define local styled components
 const Wrapper = styled.View`
@@ -90,7 +91,8 @@ class ProductDetail extends Component{
 
         this.state= {
             isModalOpen: false,
-            isSubstituteProductModalOpen: false
+            isSubstituteProductModalOpen: false,
+            isRemoveProductModalOpen: false
         }
         
         this._closeModal  = this._closeModal.bind(this);
@@ -98,8 +100,31 @@ class ProductDetail extends Component{
         this._closeSubStituteProductModal = this._closeSubStituteProductModal.bind(this);
         this._openSubstituteProductModal = this._openSubstituteProductModal.bind(this);
         this._onSubStituteProductModalComplete = this._onSubStituteProductModalComplete.bind(this)
+        this._openRemoveProductModal = this._openRemoveProductModal.bind(this)
+        this._closeRemoveProductModal = this._closeRemoveProductModal.bind(this)
+        this._onRemoveProductModalComplete = this._onRemoveProductModalComplete.bind(this)
     }
     
+
+
+    _openRemoveProductModal(){
+        this.setState({
+            ...this.state,
+            isRemoveProductModalOpen: true
+        })
+    }
+    _closeRemoveProductModal(){
+        this.setState({
+            ...this.state,
+            isRemoveProductModalOpen: false
+        })
+    }
+    _onRemoveProductModalComplete(){
+        //fetch order details
+        let order = this.props.navigation.getParam("order")        
+        this.props.fetchOrderDetails(order.id)
+        this.props.navigation.goBack()
+    }
 
 
     _openSubstituteProductModal(){
@@ -143,66 +168,69 @@ class ProductDetail extends Component{
             <ThemeProvider theme={theme}>
                 <Fragment>
 
-                <Wrapper>
+                    <Wrapper>
 
-                    <Header title="Product Details" canGoBack={true} goBack={navigation.goBack} theme={theme}/>
-                    <Content >
+                        <Header title="Product Details" canGoBack={true} goBack={navigation.goBack} theme={theme}/>
+                        <Content >
+                            
+                            <ProductImage resizeMode="contain" source={{uri: orderItem.product.thumbnail}}/>
+                            <ProductContainer>
+                                <ProductNameContainer>
+                                    <ProductName>{orderItem.product.displayName}</ProductName>
+                                </ProductNameContainer>
+                                <TouchableOpacity onPress={this._openActionSheet} >
+                                    <FeatherIcon name={"more-vertical"} size={25} color={theme.PRIMARY_TEXT_COLOR}/>
+                                </TouchableOpacity>
+                            </ProductContainer>
+                            <Fragment>
+
+                            <UnderlineHeader title="Quantity"></UnderlineHeader>
+                            <ProductName>{orderItem.quantity}</ProductName>
+                            </Fragment>
+                            <Fragment>
+                                <UnderlineHeader title="Product Options"></UnderlineHeader>
+                                <OptionsContainer>
+                                    <OptionSection>
+                                        <OptionField onPress={this._openModal }>
+                                            <FeatherIcon name="tag" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Change Price</OptionLabel>
+                                        </OptionField>
+                                        <OptionField>
+                                            <FeatherIcon name="slash" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Not sold here</OptionLabel>
+                                        </OptionField>
+                                    </OptionSection>
+                                    <OptionSection>
+                                        
+                                        <OptionField onPress={this._openSubstituteProductModal }>
+                                            <FeatherIcon name="shuffle" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Swap products</OptionLabel>
+                                        </OptionField>
+                                        <OptionField onPress={this._openRemoveProductModal}>
+                                            <FeatherIcon name="trash" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Remove from order</OptionLabel>
+                                        </OptionField>
+                                    </OptionSection>
+                                    <OptionSection>                
+                                        <OptionField>
+                                            <FeatherIcon name="phone" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Call customer</OptionLabel>
+                                        </OptionField>
+                                    </OptionSection>
+                                </OptionsContainer>                                            
+                            </Fragment>
+                        </Content>
                         
-                        <ProductImage resizeMode="contain" source={{uri: orderItem.product.thumbnail}}/>
-                        <ProductContainer>
-                            <ProductNameContainer>
-                                <ProductName>{orderItem.product.displayName}</ProductName>
-                            </ProductNameContainer>
-                            <TouchableOpacity onPress={this._openActionSheet} >
-                                <FeatherIcon name={"more-vertical"} size={25} color={theme.PRIMARY_TEXT_COLOR}/>
-                            </TouchableOpacity>
-                        </ProductContainer>
-                        <Fragment>
-
-                        <UnderlineHeader title="Quantity"></UnderlineHeader>
-                        <ProductName>{orderItem.quantity}</ProductName>
-                        </Fragment>
-                        <Fragment>
-                            <UnderlineHeader title="Product Options"></UnderlineHeader>
-                            <OptionsContainer>
-                                <OptionSection>
-                                    <OptionField onPress={this._openModal }>
-                                        <FeatherIcon name="tag" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Change Price</OptionLabel>
-                                    </OptionField>
-                                    <OptionField>
-                                        <FeatherIcon name="slash" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Not sold here</OptionLabel>
-                                    </OptionField>
-                                </OptionSection>
-                                <OptionSection>
-                                    
-                                    <OptionField onPress={this._openSubstituteProductModal }>
-                                        <FeatherIcon name="shuffle" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Swap products</OptionLabel>
-                                    </OptionField>
-                                    <OptionField>
-                                        <FeatherIcon name="trash" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Remove from order</OptionLabel>
-                                    </OptionField>
-                                </OptionSection>
-                                <OptionSection>                
-                                    <OptionField>
-                                        <FeatherIcon name="phone" size={15} color={"#3d3d3d"}/>
-                                        <OptionLabel>Call customer</OptionLabel>
-                                    </OptionField>
-                                </OptionSection>
-                            </OptionsContainer>                                            
-                        </Fragment>
-                    </Content>
-                    
-                </Wrapper>
+                    </Wrapper>
                     <ProductsModal backButtonClose={true} isOpen={this.state.isModalOpen} onClosed={this._closeModal}  position={"bottom"} >
                         <UpdateInventoryPrice close={this._closeModal} inventory={orderItem.product.outletInventory} />
                     </ProductsModal>
                     <OutletSearchModal backButtonClose={true} isOpen={this.state.isSubstituteProductModalOpen} onClosed={this._closeSubStituteProductModal}  position={"bottom"} >
                         <SubStituteProduct close={this._closeSubStituteProductModal} order={order} orderItem={orderItem} complete={this._onSubStituteProductModalComplete} />
                     </OutletSearchModal>
+                    <ProductsModal backButtonClose={true} isOpen={this.state.isRemoveProductModalOpen} onClosed={this._closeRemoveProductModal}  position={"bottom"} >
+                        <RemoveProduct close={this._closeRemoveProductModal} order={order} orderItem={orderItem} complete={this._onRemoveProductModalComplete} />
+                    </ProductsModal>
                 </Fragment>
             </ThemeProvider>
         )    
