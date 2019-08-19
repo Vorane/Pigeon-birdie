@@ -1,10 +1,12 @@
 import React, {Component, Fragment} from "react"
-import { RefreshControl, ActivityIndicator} from "react-native"
+import { RefreshControl, ActivityIndicator,Linking, Platform,} from "react-native"
 import styled, {ThemeProvider} from "styled-components"
 import {connect} from "react-redux"
 import moment from "moment"
 import { bindActionCreators} from "redux"
 import Loader from "react-native-easy-content-loader";
+import FAIcon from "react-native-vector-icons/FontAwesome";
+import FeatherIcon from "react-native-vector-icons/Feather"
 
 
 //Import store actions and selectors
@@ -36,16 +38,33 @@ const Section = styled.View`
 `
 
 const Field  = styled.View`
-padding-top: 5;
+    padding-top: 5;
     flex-direction: row;
     justify-content: flex-start;    
+`
+
+const OptionsContainer = styled.View`
+    padding-horizontal: 5;
+    background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
+    
 
 `
-const Label  = styled.Text`
-    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY_THIN};
-    font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
-    color: ${props => props.theme.PRIMARY_TEXT_COLOR_LIGHT};
-`  
+const OptionSection = styled.View`
+    padding-vertical: 5;    
+`
+const OptionField = styled.TouchableOpacity`
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center
+    padding-vertical: 10;
+`
+const OptionLabel = styled.Text`
+    color: ${props => props.theme.PRIMARY_TEXT_COLOR};
+    font-family: ${props => props.theme.SECONDARY_FONT_FAMILY};
+    font-size: ${props => props.theme.FONT_SIZE_MEDIUM}    
+    padding-horizontal: 15;
+`
+
 const Value  = styled.Text`
     font-family: ${props => props.theme.PRIMARY_FONT_FAMILY_SEMI_BOLD};
     font-size: ${props => props.theme.FONT_SIZE_MEDIUM};
@@ -92,6 +111,8 @@ class OrderDetail extends Component{
         this._getConfirmationFooter = this._getConfirmationFooter.bind(this)
         this._onProductPress = this._onProductPress.bind(this)
         this._onRefresh = this._onRefresh.bind(this)
+        this._callCustomer = this._callCustomer.bind(this);
+        this._onPressWhatsAppCard = this._onPressWhatsAppCard.bind(this)
     }
 
     componentDidMount(){
@@ -128,6 +149,27 @@ class OrderDetail extends Component{
         
     }
 
+
+    _callCustomer = () => {
+        let phoneNumber = this.props.orderDetails.wallet.phoneNumber        
+        
+        
+        if (Platform.OS === "android") {
+            phoneNumber = `tel:${phoneNumber}`;
+        } else {
+            phoneNumber = `telprompt:${phoneNumber}`
+        }
+        
+        Linking.openURL(phoneNumber);
+    };
+    
+    _onPressWhatsAppCard = () => {
+        let phoneNumber = this.props.orderDetails.wallet.phoneNumber        
+        Linking.openURL(
+        `https://wa.me/${phoneNumber}`
+        );
+    };
+
     _onRefresh = () => {
         let order = this.props.navigation.getParam("order")        
         this.props.fetchOrderDetails(order.id)
@@ -136,9 +178,6 @@ class OrderDetail extends Component{
     _onProductPress(product){
         this.props.navigation.navigate("ProductDetailPage",{product, order: this.props.navigation.getParam("order")})
     }
-
-
-
 
     _getFooter(orderDetails){
         const statusesRequiringConfirmation = [orderStatus.CREATED, orderStatus.READY_FOR_PROCESSING , orderStatus.RECEIVED_BY_STORE]
@@ -271,12 +310,6 @@ class OrderDetail extends Component{
         )
     }
 
-    
-
-
-    
-    
-
     render(){
         let {theme, orderDetails, fetchOrderDetailsProcess} = this.props
         let showLoading = fetchOrderDetailsProcess.status === processTypes.PROCESSING
@@ -316,6 +349,39 @@ class OrderDetail extends Component{
                                 <Section>
                                 {this._getDetailsLoader()}
                                 </Section>
+                            )}
+                        </Section>
+                        <Section>
+                            <UnderlineHeader title="Options"/>
+                            {showLoading ?(
+                                <Loader
+                                    primaryColor='rgba(195, 191, 191, 1)'
+                                    secondaryColor='rgba(218, 215, 215, 1)'
+                                    animationDuration={500}
+                                    loading={true}
+                                    title={false}
+                                    pRows={3}
+                                    pWidth={["75%","75%","75%"]}
+                                    active
+                                    />    
+                            ):(
+
+                                <OptionsContainer>
+                                    <OptionSection>
+                                        <OptionField onPress={this._callCustomer }>
+                                            <FeatherIcon name="phone" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Call {orderDetails.orderContactPerson}</OptionLabel>
+                                        </OptionField>
+                                        <OptionField onPress={this._onPressWhatsAppCard }>
+                                            <FAIcon name="whatsapp" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Text on whatsapp</OptionLabel>
+                                        </OptionField>
+                                        <OptionField>
+                                            <FeatherIcon name="shopping-bag" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Add product to order</OptionLabel>
+                                        </OptionField>
+                                    </OptionSection>
+                            </OptionsContainer>
                             )}
                         </Section>
                         <Section>

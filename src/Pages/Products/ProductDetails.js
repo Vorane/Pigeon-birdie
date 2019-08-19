@@ -1,10 +1,11 @@
 import React, {Component, Fragment} from "react"
-import { TouchableOpacity , StyleSheet, Text, Button} from "react-native"
+import { TouchableOpacity , Linking, Platform,} from "react-native"
 import  styled, {ThemeProvider} from "styled-components"
 import { connect } from "react-redux"
 import {bindActionCreators} from "redux"
 import FeatherIcon from "react-native-vector-icons/Feather"
 import Modal from 'react-native-modalbox';
+import FAIcon from "react-native-vector-icons/FontAwesome";
 
 
 
@@ -36,10 +37,15 @@ const ProductImage   = styled.Image`
 `
 const ProductName = styled.Text`
     color: ${props => props.theme.PRIMARY_TEXT_COLOR};
-    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY_BOLD};
+    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY};
     font-size: ${props => props.theme.FONT_SIZE_LARGE}    
     `
-    const ProductNameContainer = styled.View`
+const ProductQuantity = styled.Text`
+    color: ${props => props.theme.PRIMARY_TEXT_COLOR};
+    font-family: ${props => props.theme.PRIMARY_FONT_FAMILY_BOLD};
+    font-size: ${props => props.theme.FONT_SIZE_MASSIVE}    
+`
+const ProductNameContainer = styled.View`
     flex:1;
     `
 const ProductContainer = styled.View`
@@ -103,6 +109,8 @@ class ProductDetail extends Component{
         this._openRemoveProductModal = this._openRemoveProductModal.bind(this)
         this._closeRemoveProductModal = this._closeRemoveProductModal.bind(this)
         this._onRemoveProductModalComplete = this._onRemoveProductModalComplete.bind(this)
+        this._callCustomer = this._callCustomer.bind(this);
+        this._onPressWhatsAppCard = this._onPressWhatsAppCard.bind(this)
     }
     
 
@@ -145,7 +153,7 @@ class ProductDetail extends Component{
         this.props.fetchOrderDetails(order.id)
         this.props.navigation.goBack()
     }
-
+    
     _closeModal(){
         this.setState({
             ...this.state,
@@ -158,6 +166,28 @@ class ProductDetail extends Component{
             isModalOpen: true
         })
     }
+    
+    _callCustomer = () => {
+        let phoneNumber = this.props.navigation.getParam("order").wallet.phoneNumber        
+        
+        
+        if (Platform.OS === "android") {
+            phoneNumber = `tel:${phoneNumber}`;
+        } else {
+            phoneNumber = `telprompt:${phoneNumber}`
+        }
+        
+        Linking.openURL(phoneNumber);
+    };
+    
+    _onPressWhatsAppCard = () => {
+        let phoneNumber = this.props.navigation.getParam("order").wallet.phoneNumber        
+        Linking.openURL(
+        `https://wa.me/${phoneNumber}`
+        );
+    };
+    
+    
 
     render(){
         
@@ -177,6 +207,7 @@ class ProductDetail extends Component{
                             <ProductContainer>
                                 <ProductNameContainer>
                                     <ProductName>{orderItem.product.displayName}</ProductName>
+                                    <ProductName>{orderItem.product.outletInventory.price}/=</ProductName>
                                 </ProductNameContainer>
                                 <TouchableOpacity onPress={this._openActionSheet} >
                                     <FeatherIcon name={"more-vertical"} size={25} color={theme.PRIMARY_TEXT_COLOR}/>
@@ -185,7 +216,7 @@ class ProductDetail extends Component{
                             <Fragment>
 
                             <UnderlineHeader title="Quantity"></UnderlineHeader>
-                            <ProductName>{orderItem.quantity}</ProductName>
+                            <ProductQuantity>{orderItem.quantity}</ProductQuantity>
                             </Fragment>
                             <Fragment>
                                 <UnderlineHeader title="Product Options"></UnderlineHeader>
@@ -212,9 +243,13 @@ class ProductDetail extends Component{
                                         </OptionField>
                                     </OptionSection>
                                     <OptionSection>                
-                                        <OptionField>
+                                        <OptionField onPress={this._callCustomer}>
                                             <FeatherIcon name="phone" size={15} color={"#3d3d3d"}/>
                                             <OptionLabel>Call customer</OptionLabel>
+                                        </OptionField>
+                                        <OptionField onPress={this._onPressWhatsAppCard}>
+                                            <FAIcon name="whatsapp" size={15} color={"#3d3d3d"}/>
+                                            <OptionLabel>Text on whatsapp</OptionLabel>
                                         </OptionField>
                                     </OptionSection>
                                 </OptionsContainer>                                            
