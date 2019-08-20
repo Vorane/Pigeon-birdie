@@ -100,6 +100,11 @@ class Drawer extends Component {
       icon: "tag",
       menus: [
         {
+          title: "All",
+          icon: "clipboard",
+          route: "AllOrders"
+        },
+        {
           title: "Pending",
           icon: "shopping-cart",
           route: "PendingOrders"
@@ -115,19 +120,14 @@ class Drawer extends Component {
           route: "Completed"
         },
         {
-          title: "All",
-          icon: "clipboard",
-          route: "AllOrders"
-        },
-        {
           title: "Require attention",
           icon: "alert-triangle",
-          route: "Issues"
+          route: "Attention"
         },
         {
           title: "Archived",
           icon: "archive",
-          route: "PendingOrders"
+          route: ""
         }
       ]
     },
@@ -228,7 +228,11 @@ class Drawer extends Component {
       <ThemeProvider theme={theme}>
         <Wrapper>
           <IconsListContainer>
-            <IconContainer onPress={()=>{this.onMenuListItemPress("Home");}}>
+            <IconContainer
+              onPress={() => {
+                this.onMenuListItemPress("Home");
+              }}
+            >
               <FeatherIcon
                 color={theme.PRIMARY_TEXT_COLOR}
                 size={20}

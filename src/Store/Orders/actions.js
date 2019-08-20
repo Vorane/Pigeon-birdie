@@ -12,9 +12,9 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
     });
 
     //function to fetch from the api
-    const remoteFetchOrders = (startDate, endDate, page = 1, token = null) => {
+    const remoteFetchOrders = (startDate, endDate, status=[], page = 1, token = null) => {
       const url = sharedServices.API_ENDPOINT.concat(
-        `api/orders/staff/?start_time=${startDate}&end_time=${endDate}&page=${page}`
+        `api/orders/staff/?start_time=${startDate}&end_time=${endDate}&page=${page}&order_status=${status.map(status =>`${status},`)}`
       );
       let request = {
         method: "GET",
@@ -32,7 +32,7 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
         });
     };
 
-    remoteFetchOrders(startDate, endDate, page)
+    remoteFetchOrders(startDate, endDate, status, page)
       .then(response => {
         if (response.status === 200) {
           //update Todays list of orders
@@ -73,7 +73,7 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
   };
 };
 
-export const fetchTodaysOrders = () => {
+export const fetchTodaysOrders = (status=[]) => {
   return (dispatch, getState) => {
     let startDate = moment()
                       .set('hour', 0)
@@ -92,12 +92,13 @@ export const fetchTodaysOrders = () => {
       fetchOrders(
         startDate.utc().toISOString(),
         endDate.utc().toISOString(),
-        1
+        1,
+        status,
       )
     );
   };
 };
-export const fetchTodaysEarlierOrders = () => {
+export const fetchTodaysEarlierOrders = (status=[]) => {
   return (dispatch, getState) => {
     let startDate = moment().subtract(1, "days");
 
@@ -107,7 +108,8 @@ export const fetchTodaysEarlierOrders = () => {
       fetchOrders(
         startDate.utc().toISOString(),
         endDate.utc().toISOString(),
-        getState().orders.orders.currentPage + 1
+        getState().orders.orders.currentPage + 1,
+        status
       )
     );
   };
