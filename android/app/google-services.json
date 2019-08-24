@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "714663488649",
+    "firebase_url": "https://pigeon-birdie.firebaseio.com",
+    "project_id": "pigeon-birdie",
+    "storage_bucket": "pigeon-birdie.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:714663488649:android:4a9d343f40521824",
+        "android_client_info": {
+          "package_name": "com.birdie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "714663488649-20r3j604qkgnsvmo3q90hkn1ohdpm50m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoEyqzDkOXCJvDXu07Xb-0nE7-HLx7J-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "714663488649-20r3j604qkgnsvmo3q90hkn1ohdpm50m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

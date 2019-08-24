@@ -6,72 +6,68 @@
  * @flow
  */
 
-import React, {Fragment} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import React, { Component, Fragment } from "react";
+import firebase from "react-native-firebase";
+import { Clipboard, AsyncStorage} from "react-native"
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import Birdie from "./src";
 
-import Birdie from "./src"
+class App extends Component {
+  async componentDidMount() {
+    this.checkPermission();
+  }
 
-const App = () => {
-  return (
-    <Fragment>
-      <StatusBar barStyle="dark-content" />
-      <Birdie/>
-    </Fragment>
-  );
-};
+  //1
+  async checkPermission() {
+    firebase
+      .messaging()
+      .hasPermission()
+      .then(enabled => {
+        if (enabled) {
+          console.warn("Permission granted");
+          this.getToken();
+        } else {
+          console.warn("Request Permission");
+          this.requestPermission();
+        }
+      });
+  }
 
-// const styles = StyleSheet.create({
-//   scrollView: {
-//     backgroundColor: Colors.lighter,
-//   },
-//   engine: {
-//     position: 'absolute',
-//     right: 0,
-//   },
-//   body: {
-//     backgroundColor: Colors.white,
-//   },
-//   sectionContainer: {
-//     marginTop: 32,
-//     paddingHorizontal: 24,
-//   },
-//   sectionTitle: {
-//     fontSize: 24,
-//     fontWeight: '600',
-//     color: Colors.black,
-//   },
-//   sectionDescription: {
-//     marginTop: 8,
-//     fontSize: 18,
-//     fontWeight: '400',
-//     color: Colors.dark,
-//   },
-//   highlight: {
-//     fontWeight: '700',
-//   },
-//   footer: {
-//     color: Colors.dark,
-//     fontSize: 12,
-//     fontWeight: '600',
-//     padding: 4,
-//     paddingRight: 12,
-//     textAlign: 'right',
-//   },
-// });
+  //3
+  async getToken() {
+    let fcmToken = await AsyncStorage.getItem("fcmToken");
+    Clipboard.setString(fcmToken);
+    console.warn("before fcmToken: ", fcmToken);
+    if (!fcmToken) {
+      fcmToken = await firebase.messaging().getToken();
+      if (fcmToken) {
+        // user has a device token
+        console.warn("after fcmToken: ", fcmToken);
+        await AsyncStorage.setItem("fcmToken", fcmToken);
+      }
+    }
+  }
+
+  //2
+  async requestPermission() {
+    firebase
+      .messaging()
+      .requestPermission()
+      .then(() => {
+        this.getToken();
+      })
+      .catch(error => {
+        console.warn("permission rejected");
+      });
+  }
+
+  render() {
+    return (
+      <Fragment>
+        <Birdie />
+      </Fragment>
+    );
+  }
+}
 
 export default App;
