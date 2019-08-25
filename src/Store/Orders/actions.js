@@ -367,7 +367,7 @@ export const resetRemoveOrderItem = ()=>{
   }
 }
 
-export const substituteOrderItems = (order, oldOrderItem, newOrderItem) =>{
+export const substituteOrderItems = (order, newOrderItem, oldOrderItem) =>{
   return(dispatch) =>{
     dispatch({
       type: actionTypes.SUBSTITUTE_ORDER_ITEM_REQUESTED,

@@ -24,10 +24,8 @@ class App extends Component {
       .hasPermission()
       .then(enabled => {
         if (enabled) {
-          console.warn("Permission granted");
           this.getToken();
         } else {
-          console.warn("Request Permission");
           this.requestPermission();
         }
       });
@@ -37,12 +35,10 @@ class App extends Component {
   async getToken() {
     let fcmToken = await AsyncStorage.getItem("fcmToken");
     Clipboard.setString(fcmToken);
-    console.warn("before fcmToken: ", fcmToken);
     if (!fcmToken) {
       fcmToken = await firebase.messaging().getToken();
       if (fcmToken) {
         // user has a device token
-        console.warn("after fcmToken: ", fcmToken);
         await AsyncStorage.setItem("fcmToken", fcmToken);
       }
     }
@@ -57,7 +53,6 @@ class App extends Component {
         this.getToken();
       })
       .catch(error => {
-        console.warn("permission rejected");
       });
   }
 

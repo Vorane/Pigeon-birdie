@@ -9,7 +9,8 @@ const EmptyView = styled.View`
 `;
 
 const Footer = styled.View`
-  elevation: 5;
+  border-width: 0.75;
+  border-color: #f0f0f0;
   background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
   flex-direction: row;
   justify-content: space-between;
