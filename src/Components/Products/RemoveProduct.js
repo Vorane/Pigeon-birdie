@@ -79,7 +79,7 @@ class RemoveProduct extends  Component{
             //reset the process
             setTimeout(()=>{
                 this.props.resetRemoveOrderItem()
-            }, 1500)
+            }, 100)
         }
         if(
             (prevProps.removeOrderItemProcess.status !== processTypes.SUCCESS ) && 
@@ -89,7 +89,7 @@ class RemoveProduct extends  Component{
                 this.props.close()
                 this.props.resetRemoveOrderItem()
                 this.props.complete()
-            }, 1500)
+            }, 100)
         }
     }
     _onSubmitPrice(){

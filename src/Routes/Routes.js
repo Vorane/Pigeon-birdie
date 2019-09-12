@@ -12,14 +12,16 @@ import Drawer from "../Pages/Drawer/Drawer";
 import Home from "../Pages/Home/Home";
 import Orders from "../Pages/Orders/Orders";
 import OrderDetailsPage from "../Pages/Orders/OrderDetail";
-import ProductDetailPage from "../Pages/Products/ProductDetails";
+import OrderItemDetailPage from "../Pages/Orders/OrderItemDetail";
+import OrderDeliveryPage from "../Pages/Orders/OrderDelivery";
 
 const OrdersRoute = createAppContainer(
   createStackNavigator(
     {
       Orders,
       OrderDetailsPage,
-      ProductDetailPage
+      OrderItemDetailPage,
+      OrderDeliveryPage
     },
     {
       defaultNavigationOptions: {

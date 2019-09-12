@@ -161,7 +161,7 @@ class OrderDetail extends Component {
         setTimeout(() => {
           this.props.resetUpdateOrderStatus();
           this.props.navigation.goBack();
-        }, 2000);
+        }, 100);
       }
       if (this.props.orderDetails.orderStatus === orderStatus.IN_PROCESSING) {
         this.props.resetUpdateOrderStatus();
@@ -192,7 +192,7 @@ class OrderDetail extends Component {
   };
 
   _onProductPress(product) {
-    this.props.navigation.navigate("ProductDetailPage", {
+    this.props.navigation.navigate("OrderItemDetailPage", {
       product,
       order: this.props.navigation.getParam("order")
     });

@@ -142,7 +142,7 @@ class SelectProduct extends Component {
         this.props.resetSelectOrderItem();
         this.props.close();
         this.props.complete();
-      }, 1000);
+      }, 100);
     }
   }
 

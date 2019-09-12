@@ -91,7 +91,7 @@ const OutletSearchModal = styled(Modal)`
 
 
 
-class ProductDetail extends Component{
+class OrderItemDetail extends Component{
     constructor(props){
         super(props)        
 
@@ -281,4 +281,4 @@ const mapDispatchToProps = dispatch =>({
     fetchOrderDetails : bindActionCreators(fetchOrderDetails , dispatch)
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(ProductDetail)
+export default connect(mapStateToProps, mapDispatchToProps)(OrderItemDetail)

@@ -9,6 +9,7 @@ import * as processTypes from "../../Store/Shared/processTypes";
 import { getTheme } from "../../Store/Configuration/selectors";
 import { getFetchOrdersProcess, getOrders } from "../../Store/Orders/selectors";
 import { fetchTodaysOrders } from "../../Store/Orders/actions";
+import * as orderStatus from "../../Store/Orders/orderStatus";
 
 //Import local components
 import Header from "../../Components/Header/DrawerHeader";
@@ -16,22 +17,19 @@ import SectionHeader from "../../Components/Header/SectionHeader";
 import OrderList from "../../Components/Orders/OrderLists";
 
 const Wrapper = styled.View`
-flex:1;
-
+  flex: 1;
 `;
-const ContentWrapper = styled.ScrollView`
-`;
+const ContentWrapper = styled.ScrollView``;
 
 class Orders extends Component {
   constructor(props) {
     super(props);
-    
+
     this._onRefresh = this._onRefresh.bind(this);
     this._onOrderPress = this._onOrderPress.bind(this);
-    this._fetchOrders = this._fetchOrders.bind(this)
+    this._fetchOrders = this._fetchOrders.bind(this);
   }
   componentDidMount() {
-    
     const { drawerNavigation } = this.props.screenProps;
     this.focusListener = drawerNavigation.addListener("didFocus", () => {
       // The screen is focused
@@ -42,21 +40,27 @@ class Orders extends Component {
     // Remove the event listener
     this.focusListener.remove();
   }
-  
-  _fetchOrders(){
+
+  _fetchOrders() {
     this.props.fetchTodaysOrders(this.props.screenProps.status);
-    
   }
-  
+
   _onRefresh = () => {
-    
     this.props.fetchTodaysOrders(this.props.screenProps.status);
   };
 
-  _onOrderPress = (order)=>{
-    
-    this.props.navigation.navigate("OrderDetailsPage",{order: order})
-  }
+  _onOrderPress = order => {
+    const DeliveryStatus = [
+      orderStatus.READY_FOR_DELIVERY,
+      orderStatus.DELIVERY_IN_PROGRESS
+    ];
+
+    if (DeliveryStatus.includes(order.orderStatus)) {
+      this.props.navigation.navigate("OrderDeliveryPage", { order: order });
+    } else {
+      this.props.navigation.navigate("OrderDetailsPage", { order: order });
+    }
+  };
 
   render() {
     let { theme, screenProps, orders, fetchOrdersProcess } = this.props;
@@ -80,8 +84,11 @@ class Orders extends Component {
               />
             }
           >
-            <SectionHeader title='Today' />
-            <OrderList orders={orders.orders} orderItemPress={this._onOrderPress} />
+            <SectionHeader title="Today" />
+            <OrderList
+              orders={orders.orders}
+              orderItemPress={this._onOrderPress}
+            />
           </ContentWrapper>
         </Wrapper>
       </ThemeProvider>
