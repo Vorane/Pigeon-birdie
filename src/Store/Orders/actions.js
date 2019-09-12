@@ -1,9 +1,9 @@
 import * as actionTypes from "./actionTypes";
+import { resetSearchOutletProducts } from "../Products/actions";
 import * as sharedServices from "../Shared/services";
 import { isNull, objectToCamelCase, isUndefined } from "../../lib/utils";
 import moment from "moment";
-import { getOrders } from "./selectors"
-
+import { getOrders } from "./selectors";
 
 export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
   return (dispatch, getState) => {
@@ -12,9 +12,17 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
     });
 
     //function to fetch from the api
-    const remoteFetchOrders = (startDate, endDate, status=[], page = 1, token = null) => {
+    const remoteFetchOrders = (
+      startDate,
+      endDate,
+      status = [],
+      page = 1,
+      token = null
+    ) => {
       const url = sharedServices.API_ENDPOINT.concat(
-        `api/orders/staff/?start_time=${startDate}&end_time=${endDate}&page=${page}&order_status=${status.map(status =>`${status},`)}`
+        `api/orders/staff/?start_time=${startDate}&end_time=${endDate}&page=${page}&order_status=${status.map(
+          status => `${status},`
+        )}`
       );
       let request = {
         method: "GET",
@@ -73,32 +81,32 @@ export const fetchOrders = (startDate, endDate, page = 1, status = []) => {
   };
 };
 
-export const fetchTodaysOrders = (status=[]) => {
+export const fetchTodaysOrders = (status = []) => {
   return (dispatch, getState) => {
     let startDate = moment()
-                      .set('hour', 0)
-                      .set('minute', 0)
-                      .set('second', 0)
-                      .utc();
-                      
+      .set("hour", 0)
+      .set("minute", 0)
+      .set("second", 0)
+      .utc();
+
     var endDate = moment()
-                    .add(1, "days")
-                    .set('hour', 0)
-                    .set('minute', 0)
-                    .set('second', 0)
-                    .utc();
+      .add(1, "days")
+      .set("hour", 0)
+      .set("minute", 0)
+      .set("second", 0)
+      .utc();
 
     dispatch(
       fetchOrders(
         startDate.utc().toISOString(),
         endDate.utc().toISOString(),
         1,
-        status,
+        status
       )
     );
   };
 };
-export const fetchTodaysEarlierOrders = (status=[]) => {
+export const fetchTodaysEarlierOrders = (status = []) => {
   return (dispatch, getState) => {
     let startDate = moment().subtract(1, "days");
 
@@ -115,20 +123,16 @@ export const fetchTodaysEarlierOrders = (status=[]) => {
   };
 };
 
-
-export const fetchOrderDetails = (id) =>{
-  return (dispatch,getState)=>{
+export const fetchOrderDetails = id => {
+  return (dispatch, getState) => {
     dispatch({
       type: actionTypes.FETCH_ORDER_DETAILS_REQUESTED,
-      payload:{id}
-    })
+      payload: { id }
+    });
 
-
-     //function to fetch from the api
+    //function to fetch from the api
     const remoteFetchDetails = (orderId, token = null) => {
-      const url = sharedServices.API_ENDPOINT.concat(
-        `api/orders/${orderId}`
-      );
+      const url = sharedServices.API_ENDPOINT.concat(`api/orders/${orderId}`);
       let request = {
         method: "GET",
         headers: {
@@ -145,40 +149,36 @@ export const fetchOrderDetails = (id) =>{
         });
     };
 
-
-    remoteFetchDetails(id).then(response=>{
-      if(response.status === 200){
-        response.json().then(orderDetails =>{
-          dispatch({
-            type: actionTypes.FETCH_ORDER_DETAILS_SUCCEEDED,
-            payload:{orderDetails: objectToCamelCase(orderDetails)}
-          })
-        })
-      }
-    }).catch(error=>{
-      dispatch({
-        type: actionTypes.FETCH_ORDER_DETAILS_FAILED,
-        payload:{error}
+    remoteFetchDetails(id)
+      .then(response => {
+        if (response.status === 200) {
+          response.json().then(orderDetails => {
+            dispatch({
+              type: actionTypes.FETCH_ORDER_DETAILS_SUCCEEDED,
+              payload: { orderDetails: objectToCamelCase(orderDetails) }
+            });
+          });
+        }
       })
-    })
-
-
-  }
-}
-
-
+      .catch(error => {
+        dispatch({
+          type: actionTypes.FETCH_ORDER_DETAILS_FAILED,
+          payload: { error }
+        });
+      });
+  };
+};
 
 //#region Update an order
 
-export const updateOrderStatus = (order, newOrderStatus )=>{
-  return (dispatch, getState)=>{
+export const updateOrderStatus = (order, newOrderStatus) => {
+  return (dispatch, getState) => {
     dispatch({
       type: actionTypes.UPDATE_ORDER_STATUS_REQUESTED,
-      payload: {order, newOrderStatus}
-    })
+      payload: { order, newOrderStatus }
+    });
 
-
-    const remoteUpdateStatus = (orderId, newStatus)=>{
+    const remoteUpdateStatus = (orderId, newStatus) => {
       const url = sharedServices.API_ENDPOINT.concat(
         `api/orders/update-order-status/`
       );
@@ -200,56 +200,59 @@ export const updateOrderStatus = (order, newOrderStatus )=>{
         .catch(error => {
           throw error;
         });
-    }
+    };
 
-
-    remoteUpdateStatus(order.id, newOrderStatus).then(response=>{
-      if(response.status === 200){
-        //update the list of orders to reflect the change
-        let orders = {...getOrders(getState())}
-        let foundOrder  = orders.orders.findIndex(item => item.id ===order.id)
-        if(foundOrder > -1){
-          orders.orders[foundOrder] = {...orders.orders[foundOrder], orderStatus: newOrderStatus}        
+    remoteUpdateStatus(order.id, newOrderStatus)
+      .then(response => {
+        if (response.status === 200) {
+          //update the list of orders to reflect the change
+          let orders = { ...getOrders(getState()) };
+          let foundOrder = orders.orders.findIndex(
+            item => item.id === order.id
+          );
+          if (foundOrder > -1) {
+            orders.orders[foundOrder] = {
+              ...orders.orders[foundOrder],
+              orderStatus: newOrderStatus
+            };
+          }
+          dispatch({
+            type: actionTypes.UPDATE_ORDER_STATUS_SUCCEEDED,
+            payload: {
+              orderDetails: { ...order, orderStatus: newOrderStatus },
+              orders
+            }
+          });
+        } else {
+          dispatch({
+            type: actionTypes.UPDATE_ORDER_STATUS_FAILED,
+            payload: {
+              error: "unable to update order status. Please try again"
+            }
+          });
         }
-        dispatch({
-          type: actionTypes.UPDATE_ORDER_STATUS_SUCCEEDED, 
-          payload:{
-            orderDetails: {...order, orderStatus: newOrderStatus}, 
-            orders
-          }         
-        })
-
-      }
-      else{
+      })
+      .catch(error => {
         dispatch({
           type: actionTypes.UPDATE_ORDER_STATUS_FAILED,
-          payload:{error: "unable to update order status. Please try again"}
-        })
-      }
-    }).catch(error=>{
-      dispatch({
-          type: actionTypes.UPDATE_ORDER_STATUS_FAILED,
-          payload:{error: "unable to update order status. Please try again"}
-        })
-    })
+          payload: { error: "unable to update order status. Please try again" }
+        });
+      });
+  };
+};
+export const resetUpdateOrderStatus = () => {
+  return dispatch => dispatch({ type: actionTypes.UPDATE_ORDER_STATUS_RESET });
+};
 
-  }
-}
-export const resetUpdateOrderStatus = ()=>{
-  return dispatch=>(dispatch({type: actionTypes.UPDATE_ORDER_STATUS_RESET}))
-}
-
-export const addOrderItem = (order, newOrderItem) =>{
-  return (dispatch,getState) =>{
+export const addOrderItem = (order, newOrderItem) => {
+  return (dispatch, getState) => {
     dispatch({
       type: actionTypes.ADD_ORDER_ITEM_REQUESTED,
-      payload: {order, newOrderItem}
-    })
+      payload: { order, newOrderItem }
+    });
 
-    const remoteAddOrderItem = (orderId, quantity, isAdded, productId) =>{
-      const url = sharedServices.API_ENDPOINT.concat(
-        `api/orders/add-item/`
-      );
+    const remoteAddOrderItem = (orderId, quantity, isAdded, productId) => {
+      const url = sharedServices.API_ENDPOINT.concat(`api/orders/add-item/`);
       let request = {
         method: "POST",
         headers: {
@@ -270,50 +273,54 @@ export const addOrderItem = (order, newOrderItem) =>{
         .catch(error => {
           throw error;
         });
-    }
+    };
 
-
-    return remoteAddOrderItem(order.id , newOrderItem.quantity, newOrderItem.isAdded, newOrderItem.product.id)
-      .then(response=>{
-        if(response.status === 201){
+    return remoteAddOrderItem(
+      order.id,
+      newOrderItem.quantity,
+      newOrderItem.isAdded,
+      newOrderItem.product.id
+    )
+      .then(response => {
+        if (response.status === 201) {
           //TODO update local order details
           dispatch({
             type: actionTypes.ADD_ORDER_ITEM_SUCCEEDED
-          })
-        }else{
+          });
+        } else {
           dispatch({
             type: actionTypes.ADD_ORDER_ITEM_FAILED,
-            payload: {error: "unable to add the product to the order"}
-          })
-          
+            payload: { error: "unable to add the product to the order" }
+          });
         }
       })
-      .catch(error =>{
-          dispatch({
-            type: actionTypes.ADD_ORDER_ITEM_FAILED,
-            payload: {error}
-          })
-      })
+      .catch(error => {
+        dispatch({
+          type: actionTypes.ADD_ORDER_ITEM_FAILED,
+          payload: { error }
+        });
+      });
+  };
+};
 
-  }
-}
-
-export const resetAddOrderItem = ()=>{
-  return(dispatch)=>{
+export const resetAddOrderItem = () => {
+  return dispatch => {
     dispatch({
       type: actionTypes.ADD_ORDER_ITEM_RESET
-    })
-  }
-}
+    });
 
-export const removeOrderItem = (order, orderItem) =>{
-  return (dispatch,getState) =>{
+    dispatch(resetSearchOutletProducts());
+  };
+};
+
+export const removeOrderItem = (order, orderItem) => {
+  return (dispatch, getState) => {
     dispatch({
       type: actionTypes.REMOVE_ORDER_ITEM_REQUESTED,
-      payload: {order, orderItem}
-    })
+      payload: { order, orderItem }
+    });
 
-    const remoteAddOrderItem = (orderItemId) =>{
+    const remoteAddOrderItem = orderItemId => {
       const url = sharedServices.API_ENDPOINT.concat(
         `api/orders/order-item/${orderItemId}/remove/`
       );
@@ -321,7 +328,7 @@ export const removeOrderItem = (order, orderItem) =>{
         method: "POST",
         headers: {
           "Content-Type": "application/json"
-        },       
+        }
       };
 
       return fetch(url, request)
@@ -331,65 +338,63 @@ export const removeOrderItem = (order, orderItem) =>{
         .catch(error => {
           throw error;
         });
-    }
-
+    };
 
     return remoteAddOrderItem(orderItem.id)
-      .then(response=>{
-        if(response.status === 201){
+      .then(response => {
+        if (response.status === 201) {
           //TODO update local order details
           dispatch({
             type: actionTypes.REMOVE_ORDER_ITEM_SUCCEEDED
-          })
-        }else{
+          });
+        } else {
           dispatch({
             type: actionTypes.REMOVE_ORDER_ITEM_FAILED,
-            payload: {error: "unable to add the product to the order"}
-          })
-          
+            payload: { error: "unable to add the product to the order" }
+          });
         }
       })
-      .catch(error =>{
-          dispatch({
-            type: actionTypes.REMOVE_ORDER_ITEM_FAILED,
-            payload: {error}
-          })
-      })
+      .catch(error => {
+        dispatch({
+          type: actionTypes.REMOVE_ORDER_ITEM_FAILED,
+          payload: { error }
+        });
+      });
+  };
+};
 
-  }
-}
-
-export const resetRemoveOrderItem = ()=>{
-  return(dispatch)=>{
+export const resetRemoveOrderItem = () => {
+  return dispatch => {
     dispatch({
       type: actionTypes.REMOVE_ORDER_ITEM_RESET
-    })
-  }
-}
+    });
 
-export const substituteOrderItems = (order, newOrderItem, oldOrderItem) =>{
-  return(dispatch) =>{
+    dispatch(resetSearchOutletProducts());
+  };
+};
+
+export const substituteOrderItems = (order, newOrderItem, oldOrderItem) => {
+  return dispatch => {
     dispatch({
       type: actionTypes.SUBSTITUTE_ORDER_ITEM_REQUESTED,
-      payload:{ order, oldOrderItem , newOrderItem}
-    })
+      payload: { order, oldOrderItem, newOrderItem }
+    });
 
-    dispatch(addOrderItem(order, newOrderItem)).then(result =>{
-      dispatch(removeOrderItem(order,oldOrderItem))
-    })
-  }
-}
-export const resetSubstituteOrderItem = ()=>{
-  return(dispatch)=>{
+    dispatch(addOrderItem(order, newOrderItem)).then(result => {
+      dispatch(removeOrderItem(order, oldOrderItem));
+    });
+  };
+};
+export const resetSubstituteOrderItem = () => {
+  return dispatch => {
     dispatch({
       type: actionTypes.SUBSTITUTE_ORDER_ITEM_RESET
-    })
+    });
 
-    dispatch(resetAddOrderItem())
-    dispatch(resetRemoveOrderItem())
-  }
-}
-
-
+    dispatch(resetAddOrderItem());
+    dispatch(resetRemoveOrderItem());
+    dispatch(resetSearchOutletProducts());
+  };
+};
 
 //#endregion

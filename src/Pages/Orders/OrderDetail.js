@@ -26,6 +26,7 @@ import {
   updateOrderStatus,
   resetUpdateOrderStatus
 } from "../../Store/Orders/actions";
+import { resetSearchOutletProducts } from "../../Store/Products/actions";
 import {
   getFetchOrderDetailsProcess,
   getUpdateOrderStatusProcess,
@@ -85,7 +86,7 @@ const Value = styled.Text`
 
 const ProductListContainer = styled.View`
   background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
-  
+
   padding-horizontal: 2.5;
   padding-vertical: 2.5;
 `;
@@ -114,7 +115,7 @@ const ConfirmationSecondaryText = styled.Text`
   text-align: center;
 `;
 const OutletSearchModal = styled(Modal)`
-  elevation:4;
+  elevation: 4;
   background-color: ${props => props.theme.PRIMARY_BACKGROUND_COLOR};
   height: 90%;
 `;
@@ -146,6 +147,7 @@ class OrderDetail extends Component {
 
   componentWillUnmount() {
     this.props.resetUpdateOrderStatus();
+    this.props.resetSearchOutletProducts();
   }
 
   componentDidUpdate(prevProps, prevState, snapShot) {
@@ -337,11 +339,12 @@ class OrderDetail extends Component {
       isAddProductModalOpen: true
     });
   }
-  _closeAddProductModal() {    
+  _closeAddProductModal() {
     this.setState({
       ...this.state,
       isAddProductModalOpen: false
     });
+    this.props.resetSearchOutletProducts();
   }
   _onAddProductModalComplete() {
     //fetch order details
@@ -495,7 +498,11 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   fetchOrderDetails: bindActionCreators(fetchOrderDetails, dispatch),
   updateOrderStatus: bindActionCreators(updateOrderStatus, dispatch),
-  resetUpdateOrderStatus: bindActionCreators(resetUpdateOrderStatus, dispatch)
+  resetUpdateOrderStatus: bindActionCreators(resetUpdateOrderStatus, dispatch),
+  resetSearchOutletProducts: bindActionCreators(
+    resetSearchOutletProducts,
+    dispatch
+  )
 });
 
 export default connect(

@@ -113,8 +113,6 @@ class ProductDetail extends Component{
         this._onPressWhatsAppCard = this._onPressWhatsAppCard.bind(this)
     }
     
-
-
     _openRemoveProductModal(){
         this.setState({
             ...this.state,

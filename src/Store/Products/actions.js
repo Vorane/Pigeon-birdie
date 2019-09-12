@@ -126,3 +126,11 @@ export const searchOutletProducts = (outletId, searchText) => {
       });
   };
 };
+
+export const resetSearchOutletProducts = ()=>{
+  return(dispatch)=>{
+    dispatch({
+      type: actionTypes.SEARCH_OUTLET_PRODUCTS_RESET
+    })
+  }
+}
